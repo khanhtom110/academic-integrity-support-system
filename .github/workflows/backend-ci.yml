@@ -1,0 +1,47 @@
+name: CI_BE
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - 'backend/**'
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    branches:
+      - dev
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  build:
+    name: Build & Test Backend
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
+
+      - name: Validate Code Formatting
+        run: ./mvnw formatter:validate
+
+      - name: Build and Test
+        run: ./mvnw clean test-compile
