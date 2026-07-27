@@ -1,4 +1,4 @@
-package com.hit.comemyway.constant;
+package com.haui.lms.constant;
 
 public final class ApiPath {
   public static final String API_V1 = "/api/v1";

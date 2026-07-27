@@ -1,16 +1,11 @@
-package com.hit.comemyway.exception;
+package com.haui.lms.exception;
 
-import tools.jackson.databind.exc.InvalidFormatException;
-import com.hit.comemyway.base.ApiResponse;
-import com.hit.comemyway.constant.ErrorMessage;
-import com.hit.comemyway.exception.extended.AppException;
-import jakarta.validation.ConstraintViolationException;
+import com.haui.lms.base.ApiResponse;
+import com.haui.lms.constant.ErrorMessage;
+import com.haui.lms.exception.extended.AppException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -46,59 +41,10 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.error(400, ErrorMessage.BAD_REQUEST, errors));
   }
 
-  @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
-  public ResponseEntity<ApiResponse<Void>> handleBadCredentialsException(
-      BadCredentialsException ex) {
-    return ResponseEntity.status(401)
-        .body(ApiResponse.error(401, ErrorMessage.Auth.INVALID_CREDENTIALS));
-  }
-
-  @ExceptionHandler(org.springframework.security.authentication.InternalAuthenticationServiceException.class)
-  public ResponseEntity<ApiResponse<Void>> handleInternalAuthenticationServiceException(
-      InternalAuthenticationServiceException ex) {
-    return ResponseEntity.status(401)
-        .body(ApiResponse.error(401, ErrorMessage.Auth.INVALID_CREDENTIALS));
-  }
-
-
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<ApiResponse<?>> handleConstraintViolation(ConstraintViolationException e) {
     return ResponseEntity.unprocessableContent()
         .body(ApiResponse.error(422, "Invalid parameter: " + e.getMessage()));
-  }
-
-  @ExceptionHandler(HttpMessageNotReadableException.class)
-  public ResponseEntity<ApiResponse<Void>> handlerHttpMessageNotReadableException(
-      HttpMessageNotReadableException e) {
-    String customMessage = ErrorMessage.INVALID_JSON_FORMAT;
-
-    Throwable cause = e.getCause();
-
-    while (cause != null) {
-      if (cause instanceof InvalidFormatException invalidFormatException) {
-
-        if (invalidFormatException.getTargetType() != null
-            && invalidFormatException.getTargetType().isEnum()) {
-
-          if (!invalidFormatException.getPath().isEmpty()) {
-            // Lấy tên trường bị sai
-            String fieldName = invalidFormatException.getPath()
-                .get(invalidFormatException.getPath().size() - 1).getPropertyName();
-            // Lấy danh sách các giá trị Enum hợp lệ
-            String allowedValues = java.util.Arrays
-                .toString(invalidFormatException.getTargetType().getEnumConstants());
-
-            customMessage = String.format("Invalid value for field '%s'. Accepted values are: %s",
-                fieldName, allowedValues);
-          }
-        }
-        break;
-      }
-      cause = cause.getCause();
-    }
-
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(ApiResponse.error(400, customMessage));
   }
 
   @ExceptionHandler(value = IllegalArgumentException.class)

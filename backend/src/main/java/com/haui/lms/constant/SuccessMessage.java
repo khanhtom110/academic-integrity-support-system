@@ -1,4 +1,4 @@
-package com.hit.comemyway.constant;
+package com.haui.lms.constant;
 
 public class SuccessMessage {
   public static class Auth {

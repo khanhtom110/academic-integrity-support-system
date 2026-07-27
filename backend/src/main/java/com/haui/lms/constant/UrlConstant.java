@@ -1,15 +1,8 @@
-package com.hit.comemyway.constant;
+package com.haui.lms.constant;
 
 public class UrlConstant {
   public static class Public {
     private static final String PREFIX = "/public";
-
-    public static final String CLINIC_SEARCH = PREFIX + "/clinics/search";
-    public static final String CLINIC_SUGGESTION = PREFIX + "/clinics/suggestions";
-    public static final String CLINIC_DETAIL = PREFIX + "/clinics/{clinicId}";
-    public static final String CLINIC_BOOKING = PREFIX + "/clinics/{clinicId}/booking";
-    public static final String GET_SUGGESTION = PREFIX + "/suggestions/location";
-    public static final String HEALTH_CHECK = PREFIX + "/health";
 
     private Public() {}
   }
@@ -49,7 +42,6 @@ public class UrlConstant {
     public static final String CREATE_USER = PREFIX + "/create-user";
     public static final String UPDATE_USER = PREFIX + "/update-user/{userId}";
     public static final String DELETE_USER = PREFIX + "/delete-user/{userId}";
-    public static final String CREATE_CLINIC = PREFIX + "/create-clinic";
 
     private Admin() {}
   }
@@ -60,40 +52,5 @@ public class UrlConstant {
     public static final String UPLOAD = PREFIX + "/upload";
 
     private Media() {}
-  }
-
-  public static class Clinic {
-    private static final String PREFIX = "/clinic";
-
-    public static final String GET_DETAIL = PREFIX + "/{clinicId}";
-    public static final String GET_ALL = PREFIX;
-    public static final String COMPLETE_PROFILE = PREFIX + "/complete-profile";
-    public static final String UPDATE_PROFILE = PREFIX + "/update-profile";
-    public static final String CHANGE_PASSWORD = PREFIX + "/change-password";
-    public static final String GET_APPOINTMENT_PENDING = PREFIX + "/appointments/pending";
-    public static final String POST_APPOINTMENT_CONFIRMED =
-        PREFIX + "/appointments/{appointmentId}/confirm";
-    public static final String POST_APPOINTMENT_REJECTED =
-        PREFIX + "/appointments/{appointmentId}/reject";
-    public static final String GET_APPOINTMENT_COMFIRMED = PREFIX + "/appointments/comfirmed";
-    public static final String GET_APPOINTMENT_REJECTED = PREFIX + "/appointments/rejected";
-
-    private Clinic() {}
-  }
-
-  public static class Appointment {
-    private static final String USE_PREFIX = "/user/appointments";
-
-    private static final String CLINIC_PREFIX = "/clinic/appointments";
-
-    public static final String CREATE_APPOINTMENT = USE_PREFIX;
-    public static final String GET_APPOINTMENT = USE_PREFIX;
-    public static final String GET_DETAIL = USE_PREFIX + "/detail/{appointmentId}";
-    public static final String UPDATE_APPOINTMENT = USE_PREFIX + "/update/{appointmentId}";
-    public static final String CANCEL_APPOINTMENT = USE_PREFIX + "/cancel/{appointmentId}";
-
-    public static final String CLINIC_GET_DETAIL = CLINIC_PREFIX + "/detail/{appointmentId}";
-
-    private Appointment() {}
   }
 }

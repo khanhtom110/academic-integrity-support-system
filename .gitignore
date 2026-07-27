@@ -1,0 +1,29 @@
+# IntelliJ IDEA / JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.next/
+
+# Java / Spring Boot (Backend)
+backend/target/
+backend/build/
+backend/.gradle/
+*.class
+*.jar
+*.war
+
+# Environment & Logs
+*.log
+.env
+.env.local
+
+# OS Generated
+.DS_Store
+Thumbs.db

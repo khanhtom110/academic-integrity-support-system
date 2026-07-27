@@ -1,5 +1,5 @@
-package com.hit.comemyway.entity;
+package com.haui.lms.entity;
 
 public enum Role {
-  USER, ADMIN, CLINIC
+  USER, ADMIN
 }

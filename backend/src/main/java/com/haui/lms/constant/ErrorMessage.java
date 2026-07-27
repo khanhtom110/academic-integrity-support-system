@@ -1,4 +1,4 @@
-package com.hit.comemyway.constant;
+package com.haui.lms.constant;
 
 public final class ErrorMessage {
   private ErrorMessage() {}
@@ -83,42 +83,5 @@ public final class ErrorMessage {
 
     public static final String NOT_ADMIN =
         "You do not have administrator privileges to perform this action.";
-  }
-
-  // Clinic Errors
-  public static final class Clinic {
-    private Clinic() {}
-
-    public static final String CLINIC_NOT_EXISTED = "Clinic does not exist";
-    public static final String CLINIC_PROFILE_ALREADY_DONE = "Clinic profile already done";
-    public static final String REJECT_REASON = "Reject reason must be under 500 characters";
-    public static final String MIN_ONE_SERVICE = "At least one service must be ";
-    public static final String INVALID_THUMBNAIL = "Please upload a valid image file.";
-    public static final String INVALID_WORKING_HOURS =
-        "Opening time must be earlier than closing time";
-  }
-
-  // Appointment Errors
-  public static final class Appointment {
-    private Appointment() {}
-
-    public static final String APPOINTMENT_NOT_EXISTED = "Appointment does not exist";
-    public static final String APPOINTMENT_SERVICE_NOT_EXISTED =
-        "One of appointment service does not exist";
-    public static final String CLINIC_SERVICE_MISMATCH =
-        "One of service does not belong to this clinic";
-    public static final String CANNOT_EDIT_APPOINTMENT =
-        "Cannot edit appointment because it is not in pending status";
-    public static final String INVALID_APPOINTMENT_DATE = "Appointment date cannot be in the past.";
-    public static final String INVALID_APPOINTMENT_TIME =
-        "Appointment time must be after the current time.";
-    public static final String OUT_OF_OPERATING_HOURS =
-        "Appointment time must be within operating hours.";
-    public static final String MIN_ONE_SERVICE = "At least one service must be selected.";
-    public static final String MIN_ONE_PET_QUANTITY = "At least one pet quantity";
-    public static final String ONLY_PENDING_CAN_BE_CANCELLED =
-        "Only pending appointments can be cancelled.";
-    public static final String ACTION_ONLY_FOR_PENDING =
-        "Action allowed only for pending appointments.";
   }
 }

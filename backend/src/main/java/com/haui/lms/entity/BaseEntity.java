@@ -1,4 +1,4 @@
-package com.hit.comemyway.entity;
+package com.haui.lms.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

@@ -1,4 +1,4 @@
-package com.hit.comemyway.exception.extended;
+package com.haui.lms.exception.extended;
 
 import lombok.Getter;
 
