@@ -3,6 +3,8 @@ package com.haui.lms.constant;
 public final class CommonConstant {
     public static final int USERNAME_LENGTH = 120;
     public static final int PASSWORD_LENGTH = 120;
+    public static final int PASSWORD_MIN_LENGTH = 8;
+    public static final int FULLNAME_MIN_LENGTH = 4;
     public static final int FULLNAME_LENGTH = 120;
     public static final int PHONE_LENGTH = 15;
     public static final String PHONE_REGEX = "^0[35789]\\d{8}$";

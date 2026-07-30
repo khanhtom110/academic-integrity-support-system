@@ -1,6 +1,10 @@
 package com.haui.lms.entity;
 
 import jakarta.persistence.*;
+import com.haui.lms.constant.CommonConstant;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,16 +19,19 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = CommonConstant.EMAIL_LENGTH)
     private String email;
 
+    @Column(length = CommonConstant.PASSWORD_LENGTH)
     private String password;
 
-    @Column(name = "full_name")
+    @Column(name = "full_name", length = CommonConstant.FULLNAME_LENGTH)
     private String fullName;
 
+    @Column(length = CommonConstant.PHONE_LENGTH)
     private String phone;
 
+    @Column(length = CommonConstant.ADDRESS_LENGTH)
     private String address;
 
     @Enumerated(EnumType.STRING)

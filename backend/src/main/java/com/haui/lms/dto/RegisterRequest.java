@@ -3,21 +3,25 @@ package com.haui.lms.dto;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.haui.lms.constant.CommonConstant;
+import com.haui.lms.constant.ErrorMessage;
 
 @Getter
 @Setter
 public class RegisterRequest {
-    @NotBlank(message = "Họ và tên không được để trống")
+    @NotBlank(message = ErrorMessage.NOT_BLANK_FIELD)
+    @Size(min = CommonConstant.FULLNAME_MIN_LENGTH, max = CommonConstant.FULLNAME_LENGTH, message = ErrorMessage.INVALID_FORMAT_FULLNAME)
     private String fullName;
 
-    @NotBlank(message = "Email không được để trống")
-    @Email(message = "Email không hợp lệ")
+    @NotBlank(message = ErrorMessage.NOT_BLANK_FIELD)
+    @Email(message = ErrorMessage.INVALID_FORMAT_EMAIL)
+    @Size(max = CommonConstant.EMAIL_LENGTH, message = ErrorMessage.INVALID_FORMAT_EMAIL)
     private String email;
 
-    @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 8, max = 100, message = "Mật khẩu phải từ 8 đến 100 ký tự")
+    @NotBlank(message = ErrorMessage.NOT_BLANK_FIELD)
+    @Size(min = CommonConstant.PASSWORD_MIN_LENGTH, max = CommonConstant.PASSWORD_LENGTH, message = ErrorMessage.INVALID_FORMAT_PASSWORD)
     private String password;
 
-    @NotBlank(message = "Xác nhận mật khẩu không được để trống")
+    @NotBlank(message = ErrorMessage.NOT_BLANK_FIELD)
     private String confirmPassword;
 }
