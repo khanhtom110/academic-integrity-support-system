@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import com.haui.lms.constant.ErrorMessage;
+
 @Getter
 @Setter
 public class VerifyOtpRequest {
