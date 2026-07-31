@@ -47,6 +47,7 @@ public final class ErrorMessage {
 
         public static final String OTP_EXPIRED = "The OTP has expired. Please request a new one.";
         public static final String INVALID_OTP = "The provided OTP is invalid. Please check and try again.";
+        public static final String INVALID_FORMAT_OTP = "OTP must contain exactly 6 digits.";
         public static final String RESET_SESSION_EXPIRED = "Your password reset session has expired. Please start the process again.";
         public static final String SEND_MAIL_FAIL = "Failed to send the email. Please try again later.";
         public static final String SESSION_EXPIRED = "Session expired";
