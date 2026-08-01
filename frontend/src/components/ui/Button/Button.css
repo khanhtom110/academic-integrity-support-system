@@ -1,0 +1,19 @@
+.primary-btn {
+  width: 100%;
+
+  padding: 14px;
+
+  background: var(--primary-500);
+
+  color: white;
+
+  border-radius: var(--radius-md);
+
+  transition: var(--transition);
+
+  font-weight: 600;
+}
+
+.primary-btn:hover {
+  background: var(--primary-700);
+}

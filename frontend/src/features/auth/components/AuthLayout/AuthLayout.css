@@ -1,0 +1,24 @@
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url("../../../../assets/images/bgr_lg_rg.png");
+  background-size: cover;
+}
+
+.auth-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-logo {
+  width: 100px;
+  margin-bottom: 20px;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 480px;
+}

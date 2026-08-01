@@ -1,0 +1,106 @@
+.login-form {
+  background: var(--neutral-300);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 40px;
+}
+
+.login-form h2 {
+  margin-bottom: 30px;
+  text-align: center;
+  color: var(--primary-900);
+}
+
+.forgot-password {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.forgot-password a {
+  color: var(--primary-500);
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.forgot-password a:hover {
+  color: var(--primary-700);
+}
+
+.social-login {
+  display: flex;
+  gap: 12px;
+}
+
+.social-login {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 20px;
+}
+
+.login-footer {
+  margin-top: 24px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 6px;
+
+  font-size: 14px;
+}
+
+.login-footer span {
+  color: var(--neutral-700);
+}
+
+.login-footer a {
+  color: var(--primary-500);
+
+  font-weight: 600;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+.login-register {
+  margin-top: 16px;
+  margin-bottom: 20px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.login-register span {
+  color: var(--neutral-700);
+  font-size: 14px;
+}
+
+.login-register a {
+  color: var(--primary-500);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition: var(--transition);
+}
+.register-link {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.register-link a {
+  color: var(--primary-500);
+}
+.login-register a:hover {
+  color: var(--primary-700);
+  text-decoration: underline;
+}
