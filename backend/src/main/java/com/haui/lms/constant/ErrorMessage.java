@@ -52,6 +52,9 @@ public final class ErrorMessage {
         public static final String SEND_MAIL_FAIL = "Failed to send the email. Please try again later.";
         public static final String SESSION_EXPIRED = "Session expired";
         public static final String PASSWORD_SAME_AS_OLD = "New password must be different from the current password.";
+
+        public static final String CHANGE_AUTHORIZATION_CODE_TO_TOKEN_FAIL = "Cannot convert Authorization Code to Token";
+
     }
 
     // User Errors

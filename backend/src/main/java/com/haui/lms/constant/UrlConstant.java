@@ -19,6 +19,8 @@ public class UrlConstant {
         public static final String VERIFY_REGISTER_OTP = PREFIX + "/verify-register";
         public static final String RESET_PASSWORD = PREFIX + "/reset-password";
 
+        public static final String GOOGLE = PREFIX + "/google";
+
         private Auth() {
         }
     }
