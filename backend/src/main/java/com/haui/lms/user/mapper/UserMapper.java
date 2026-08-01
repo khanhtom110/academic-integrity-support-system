@@ -1,6 +1,6 @@
 package com.haui.lms.user.mapper;
 
-import com.haui.lms.dto.UserProfileResponse;
+import com.haui.lms.dto.response.UserProfileResponse;
 import com.haui.lms.entity.User;
 
 public final class UserMapper {

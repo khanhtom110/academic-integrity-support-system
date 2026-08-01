@@ -2,7 +2,7 @@ package com.haui.lms.user.service.impl;
 
 import com.haui.lms.constant.CommonConstant;
 import com.haui.lms.constant.ErrorMessage;
-import com.haui.lms.dto.UserProfileResponse;
+import com.haui.lms.dto.response.UserProfileResponse;
 import com.haui.lms.entity.User;
 import com.haui.lms.exception.extended.AppException;
 import com.haui.lms.integration.otp.OtpPurpose;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Service
@@ -33,14 +32,14 @@ public class UserServiceImpl implements UserService {
     private static final Pattern PHONE_PATTERN = Pattern.compile(CommonConstant.PHONE_REGEX);
 
     @Override
-    public UserProfileResponse getProfile(UUID userId) {
-        return UserMapper.toProfileResponse(getUserOrThrow(userId));
+    public UserProfileResponse getProfile(String email) {
+        return UserMapper.toProfileResponse(getUserOrThrow(email));
     }
 
     @Override
     @Transactional
-    public UserProfileResponse updateProfile(UUID userId, UpdateProfileRequest request) {
-        User user = getUserOrThrow(userId);
+    public UserProfileResponse updateProfile(String email, UpdateProfileRequest request) {
+        User user = getUserOrThrow(email);
 
         if (StringUtils.hasText(request.fullName())) {
             user.setFullName(request.fullName());
@@ -60,8 +59,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changePassword(UUID userId, ChangePasswordRequest request) {
-        User user = getUserOrThrow(userId);
+    public void changePassword(String email, ChangePasswordRequest request) {
+        User user = getUserOrThrow(email);
 
         if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
             throw new AppException(400, ErrorMessage.Auth.INVALID_PASSWORD);
@@ -104,8 +103,8 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId)
+    private User getUserOrThrow(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(404, ErrorMessage.User.USER_NOT_EXISTED));
     }
 }

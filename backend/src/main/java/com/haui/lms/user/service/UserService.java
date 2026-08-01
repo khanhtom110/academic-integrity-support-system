@@ -1,19 +1,17 @@
 package com.haui.lms.user.service;
 
-import com.haui.lms.dto.UserProfileResponse;
+import com.haui.lms.dto.response.UserProfileResponse;
 import com.haui.lms.user.dto.request.ChangePasswordRequest;
 import com.haui.lms.user.dto.request.ResetPasswordRequest;
 import com.haui.lms.user.dto.request.UpdateProfileRequest;
 
-import java.util.UUID;
-
 public interface UserService {
 
-    UserProfileResponse getProfile(UUID userId);
+    UserProfileResponse getProfile(String email);
 
-    UserProfileResponse updateProfile(UUID userId, UpdateProfileRequest request);
+    UserProfileResponse updateProfile(String email, UpdateProfileRequest request);
 
-    void changePassword(UUID userId, ChangePasswordRequest request);
+    void changePassword(String email, ChangePasswordRequest request);
 
     void requestPasswordReset(String email);
 
