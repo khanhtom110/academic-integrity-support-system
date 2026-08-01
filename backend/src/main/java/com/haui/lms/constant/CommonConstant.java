@@ -12,6 +12,8 @@ public final class CommonConstant {
     public static final int ADDRESS_LENGTH = 255;
     public static final int CONDITION_LENGTH = 1000;
 
+    public static final String GOOGLE_PROVIDER = "google";
+
     public static final class User {
         public static final int AVATAR_LENGTH = 500;
         public static final int HOBBY_LENGTH = 300;

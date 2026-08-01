@@ -26,6 +26,8 @@ public class UrlConstant {
         public static final String FORGOT_PASSWORD_REQUEST = FORGOT_PASSWORD_PREFIX + "/request";
         public static final String FORGOT_PASSWORD_CONFIRM = FORGOT_PASSWORD_PREFIX + "/confirm";
 
+        public static final String GOOGLE = PREFIX + "/google";
+
         private Auth() {
         }
     }
