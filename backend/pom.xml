@@ -78,6 +78,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
+		<!-- Chi dung BCryptPasswordEncoder cho change/reset password, KHONG phai
+		     spring-boot-starter-security day du, de khong tu dong khoa toan bo
+		     endpoint truoc khi Khanh xong SecurityFilterChain that. -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-crypto</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
