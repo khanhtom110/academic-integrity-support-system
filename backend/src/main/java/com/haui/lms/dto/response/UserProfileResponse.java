@@ -1,4 +1,4 @@
-package com.haui.lms.dto;
+package com.haui.lms.dto.response;
 
 import com.haui.lms.entity.Role;
 import java.util.UUID;

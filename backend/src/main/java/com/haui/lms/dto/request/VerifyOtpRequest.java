@@ -1,4 +1,4 @@
-package com.haui.lms.dto;
+package com.haui.lms.dto.request;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
