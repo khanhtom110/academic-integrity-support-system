@@ -1,10 +1,7 @@
 package com.haui.lms.service;
 
 import com.haui.lms.dto.*;
-import com.haui.lms.dto.request.LoginRequest;
-import com.haui.lms.dto.request.LogoutRequest;
-import com.haui.lms.dto.request.RegisterRequest;
-import com.haui.lms.dto.request.VerifyOtpRequest;
+import com.haui.lms.dto.request.*;
 
 public interface AuthenticationService {
     LoginResponse login(LoginRequest request);
@@ -14,4 +11,6 @@ public interface AuthenticationService {
     RegisterResponse verifyOtp(VerifyOtpRequest request);
 
     void logout(LogoutRequest request);
+
+    LoginResponse refreshToken(RefreshTokenRequest request);
 }

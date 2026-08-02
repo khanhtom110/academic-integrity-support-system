@@ -2,13 +2,11 @@ package com.haui.lms.controller;
 
 import com.haui.lms.base.ApiResponse;
 import com.haui.lms.constant.ApiPath;
+import com.haui.lms.constant.CommonConstant;
 import com.haui.lms.constant.SuccessMessage;
 import com.haui.lms.constant.UrlConstant;
 import com.haui.lms.dto.*;
-import com.haui.lms.dto.request.LoginRequest;
-import com.haui.lms.dto.request.LogoutRequest;
-import com.haui.lms.dto.request.RegisterRequest;
-import com.haui.lms.dto.request.VerifyOtpRequest;
+import com.haui.lms.dto.request.*;
 import com.haui.lms.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -37,7 +35,7 @@ public class AuthenticationController {
     @PostMapping(UrlConstant.Auth.REGISTER)
     public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody RegisterRequest request) {
         authenticationService.initRegister(request);
-        return ResponseEntity.ok(ApiResponse.ok("", null));
+        return ResponseEntity.ok(ApiResponse.ok(SuccessMessage.Auth.SEND_OTP_SUCCESS, null));
     }
 
     @Operation(summary = "Xác thực OTP", description = "Dùng để kích hoạt tài khoản")
@@ -59,9 +57,13 @@ public class AuthenticationController {
         return ResponseEntity.ok(ApiResponse.ok(SuccessMessage.Auth.LOGIN_SUCCESS, response));
     }
 
-    // - POST /api/v1/auth/refresh-token (Cấp Access Token mới từ Refresh Token)
+    @Operation(summary = "Cấp lại Access Token mới", description = "Sử dụng Refresh Token (còn hiệu lực) để cấp lại access token")
+    @PostMapping(UrlConstant.Auth.REFRESH_TOKEN)
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        LoginResponse response = authenticationService.refreshToken(request);
+        return ResponseEntity.ok(ApiResponse.ok("", response));
+    }
 
-    // - POST /api/v1/auth/logout
     @Operation(summary = "Đăng xuất hệ thống", description = "Vô hiệu hóa (invalidate) Refresh Token hiện tại, đưa token này vào danh sách đen")
     @PostMapping(UrlConstant.User.LOGOUT)
     @SecurityRequirement(name = "bearerAuth")

@@ -1,16 +1,15 @@
 package com.haui.lms.service.impl;
 
+import com.haui.lms.constant.CommonConstant;
 import com.haui.lms.constant.ErrorMessage;
 import com.haui.lms.dto.*;
-import com.haui.lms.dto.request.LoginRequest;
-import com.haui.lms.dto.request.LogoutRequest;
-import com.haui.lms.dto.request.RegisterRequest;
-import com.haui.lms.dto.request.VerifyOtpRequest;
+import com.haui.lms.dto.request.*;
 import com.haui.lms.entity.Role;
 import com.haui.lms.entity.User;
 import com.haui.lms.exception.extended.AppException;
 import com.haui.lms.repository.InvalidatedRepository;
 import com.haui.lms.repository.UserRepository;
+import com.haui.lms.security.CustomUserDetails;
 import com.haui.lms.security.JwtService;
 import com.haui.lms.service.AuthenticationService;
 import com.haui.lms.service.MailService;
@@ -109,6 +108,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    @Transactional
     public void logout(LogoutRequest request) {
         try {
             String token = request.refreshToken();
@@ -132,5 +132,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (Exception e) {
             throw new AppException(500, ErrorMessage.EXCEPTION_GENERAL);
         }
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse refreshToken(RefreshTokenRequest request) {
+        String token = request.refreshToken();
+
+        String email = jwtService.extractEmail(token);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(400, ErrorMessage.User.EMAIL_NOT_EXISTED));
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+
+        if (!jwtService.isTokenValid(token, userDetails) || jwtService.isAccessToken(token)) {
+            throw new AppException(400, ErrorMessage.Auth.INVALID_REFRESH_TOKEN);
+        }
+
+        jwtService.invalidateToken(token);
+
+        String newAccessToken = jwtService.generateToken(user, false);
+        String newRefreshToken = jwtService.generateToken(user, true);
+
+        return new LoginResponse(newAccessToken, newRefreshToken, user.getId(), CommonConstant.BEARER_TOKEN);
     }
 }

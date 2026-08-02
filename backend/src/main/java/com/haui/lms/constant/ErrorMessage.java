@@ -70,6 +70,7 @@ public final class ErrorMessage {
         public static final String USER_NOT_EXISTED = "User does not exist.";
         public static final String USERNAME_EXISTED = "Username already exists. Please choose a different one.";
         public static final String EMAIL_EXISTED = "Email already exists. Please use another email or log in.";
+        public static final String EMAIL_NOT_EXISTED = "Email does not exists.";
     }
 
     // Administrator Errors (Admin)

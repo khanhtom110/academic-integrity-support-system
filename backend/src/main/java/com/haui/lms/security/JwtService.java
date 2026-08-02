@@ -68,9 +68,9 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
-            if (!isAccessToken(token)) {
-                return false;
-            }
+//            if (!isAccessToken(token)) {
+//                return false;
+//            }
 
             SignedJWT signedJWT = SignedJWT.parse(token);
 
