@@ -21,6 +21,7 @@ public class UrlConstant {
 
         public static final String GOOGLE = PREFIX + "/google";
         public static final String FACEBOOK = PREFIX + "/facebook";
+        public static final String OUTLOOK = PREFIX + "/outlook";
 
         private Auth() {
         }

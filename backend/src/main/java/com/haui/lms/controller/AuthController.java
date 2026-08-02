@@ -5,6 +5,7 @@ import com.haui.lms.constant.ApiPath;
 import com.haui.lms.constant.UrlConstant;
 import com.haui.lms.dto.request.FacebookLoginRequest;
 import com.haui.lms.dto.request.GoogleLoginRequest;
+import com.haui.lms.dto.request.OutlookLoginRequest;
 import com.haui.lms.dto.response.AuthResponse;
 import com.haui.lms.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +34,13 @@ public class AuthController {
     @PostMapping(UrlConstant.Auth.FACEBOOK)
     public ResponseEntity<ApiResponse<AuthResponse>> facebookLogin(@Valid @RequestBody FacebookLoginRequest request) {
         AuthResponse response = authService.loginWithFacebook(request);
+        return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @Operation(summary = "Đăng nhập bằng Microsoft/Outlook OAuth2", description = "Nhận authorization code từ Microsoft Client")
+    @PostMapping(UrlConstant.Auth.OUTLOOK)
+    public ResponseEntity<ApiResponse<AuthResponse>> outlookLogin(@Valid @RequestBody OutlookLoginRequest request) {
+        AuthResponse response = authService.loginWithOutlook(request);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 }
