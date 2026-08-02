@@ -1,15 +1,20 @@
 package com.haui.lms.controller;
 
 import com.haui.lms.base.ApiResponse;
+import com.haui.lms.constant.ApiPath;
 import com.haui.lms.constant.SuccessMessage;
 import com.haui.lms.constant.UrlConstant;
 import com.haui.lms.dto.*;
+import com.haui.lms.dto.request.LoginRequest;
+import com.haui.lms.dto.request.LogoutRequest;
+import com.haui.lms.dto.request.RegisterRequest;
+import com.haui.lms.dto.request.VerifyOtpRequest;
 import com.haui.lms.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/auth")
-@Tag(name = "Authentication Controller")
+@RequestMapping(ApiPath.API_V1)
+@Tag(name = "Authentication")
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
@@ -53,6 +58,15 @@ public class AuthenticationController {
         LoginResponse response = authenticationService.login(request);
         return ResponseEntity.ok(ApiResponse.ok(SuccessMessage.Auth.LOGIN_SUCCESS, response));
     }
+
     // - POST /api/v1/auth/refresh-token (Cấp Access Token mới từ Refresh Token)
+
     // - POST /api/v1/auth/logout
+    @Operation(summary = "Đăng xuất hệ thống", description = "Vô hiệu hóa (invalidate) Refresh Token hiện tại, đưa token này vào danh sách đen")
+    @PostMapping(UrlConstant.User.LOGOUT)
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody LogoutRequest request) {
+        authenticationService.logout(request);
+        return ResponseEntity.ok(ApiResponse.ok(SuccessMessage.Auth.LOGOUT_SUCCESS, null));
+    }
 }

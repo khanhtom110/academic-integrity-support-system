@@ -2,13 +2,19 @@ package com.haui.lms.service.impl;
 
 import com.haui.lms.constant.ErrorMessage;
 import com.haui.lms.dto.*;
+import com.haui.lms.dto.request.LoginRequest;
+import com.haui.lms.dto.request.LogoutRequest;
+import com.haui.lms.dto.request.RegisterRequest;
+import com.haui.lms.dto.request.VerifyOtpRequest;
 import com.haui.lms.entity.Role;
 import com.haui.lms.entity.User;
 import com.haui.lms.exception.extended.AppException;
-import com.haui.lms.mock.security.JwtProvider;
+import com.haui.lms.repository.InvalidatedRepository;
 import com.haui.lms.repository.UserRepository;
+import com.haui.lms.security.JwtService;
 import com.haui.lms.service.AuthenticationService;
 import com.haui.lms.service.MailService;
+import com.nimbusds.jwt.SignedJWT;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
@@ -19,6 +25,7 @@ import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
+import java.text.ParseException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -27,18 +34,11 @@ import java.util.concurrent.TimeUnit;
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
+    private final JwtService jwtService;
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
     private final MailService mailService;
-
-    @NonFinal
-    @Value("${jwt.access.expiration_time}")
-    long ACCESS_TOKEN_EXPIRATION;
-
-    @NonFinal
-    @Value("${jwt.refresh.expiration_time}")
-    long REFRESH_TOKEN_EXPIRATION;
+    private final InvalidatedRepository invalidatedRepository;
 
     @Override
     public LoginResponse login(LoginRequest request) {
@@ -49,8 +49,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!auth) {
             throw new AppException(401, ErrorMessage.Auth.INVALID_CREDENTIALS);
         }
-        String accessToken = jwtProvider.generateToken(user, ACCESS_TOKEN_EXPIRATION);
-        String refreshToken = jwtProvider.generateToken(user, REFRESH_TOKEN_EXPIRATION);
+        String accessToken = jwtService.generateToken(user, false);
+        String refreshToken = jwtService.generateToken(user, true);
 
         return LoginResponse.builder().accessToken(accessToken).refreshToken(refreshToken).id(user.getId()).build();
     }
@@ -101,10 +101,36 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = User.builder().email(registerRequest.getEmail()).password(password)
                 .fullName(registerRequest.getFullName()).role(Role.USER).isActive(true).build();
 
-        redisTemplate.delete("REGISTER_OTP:" + request.getEmail());
-        redisTemplate.delete("REGISTER_DATA:" + request.getEmail());
+        redisTemplate.delete("REGISTRATION_OTP:" + request.getEmail());
+        redisTemplate.delete("REGISTRATION_DATA:" + request.getEmail());
 
         User savedUser = userRepository.save(user);
         return RegisterResponse.from(savedUser);
+    }
+
+    @Override
+    public void logout(LogoutRequest request) {
+        try {
+            String token = request.refreshToken();
+            if (jwtService.isAccessToken(token)) {
+                throw new AppException(400, ErrorMessage.Auth.INVALID_LOGOUT_TOKEN);
+            }
+
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            String jti = signedJWT.getJWTClaimsSet().getJWTID();
+
+            if (invalidatedRepository.existsById(jti)) {
+                throw new AppException(400, ErrorMessage.Auth.TOKEN_ALREADY_INVALIDATED);
+            }
+
+            jwtService.invalidateToken(token);
+
+        } catch (ParseException e) {
+            throw new AppException(400, ErrorMessage.Auth.MALFORMED_TOKEN);
+        } catch (AppException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AppException(500, ErrorMessage.EXCEPTION_GENERAL);
+        }
     }
 }
