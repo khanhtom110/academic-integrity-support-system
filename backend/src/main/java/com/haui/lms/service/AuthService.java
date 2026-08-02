@@ -3,9 +3,11 @@ package com.haui.lms.service;
 import com.haui.lms.constant.ErrorMessage;
 import com.haui.lms.dto.request.FacebookLoginRequest;
 import com.haui.lms.dto.request.GoogleLoginRequest;
+import com.haui.lms.dto.request.OutlookLoginRequest;
 import com.haui.lms.dto.response.AuthResponse;
 import com.haui.lms.dto.response.FacebookUserInfoResponse;
 import com.haui.lms.dto.response.GoogleUserInfoResponse;
+import com.haui.lms.dto.response.OutlookUserResponse;
 import com.haui.lms.entity.AuthProvider;
 import com.haui.lms.entity.Role;
 import com.haui.lms.entity.User;
@@ -26,6 +28,7 @@ import org.springframework.util.StringUtils;
 public class AuthService {
     private final GoogleOAuth2Service googleOAuth2Service;
     private final FacebookOAuth2Service facebookOAuth2Service;
+    private final OutlookOAuth2Service outlookOAuth2Service;
     private final UserRepository userRepository;
     private final UserOAuthAccountRepository userOAuthAccountRepository;
     private final JwtService jwtService;
@@ -73,6 +76,31 @@ public class AuthService {
 
         if (!hasOAuthLink) {
             linkOAuthAccountToUser(user, AuthProvider.FACEBOOK, fbProfile.id());
+        }
+
+        return generateAuthResponse(user);
+    }
+
+    @Transactional
+    public AuthResponse loginWithOutlook(OutlookLoginRequest request) {
+        OutlookUserResponse outlookProfile = outlookOAuth2Service.getUserProfile(request.code());
+
+        if (!StringUtils.hasText(outlookProfile.getEmail())) {
+            log.error("Outlook account missing email. Outlook_ID: {}", outlookProfile.id());
+            throw new AppException(400, ErrorMessage.Auth.OUTLOOK_EMAIL_MISSING);
+        }
+
+        // Tim User, chua co thi tao moi
+        User user = userRepository.findByEmail(outlookProfile.getEmail())
+                .orElseGet(() -> createNewOAuthUser(outlookProfile.getEmail(), outlookProfile.displayName(),
+                        AuthProvider.OUTLOOK, outlookProfile.id()));
+
+        // Kiem tra user da lien ket hay chua
+        boolean hasOAuthLink = userOAuthAccountRepository.existsByProviderAndProviderUserId(AuthProvider.OUTLOOK,
+                outlookProfile.id());
+
+        if (!hasOAuthLink) {
+            linkOAuthAccountToUser(user, AuthProvider.OUTLOOK, outlookProfile.id());
         }
 
         return generateAuthResponse(user);

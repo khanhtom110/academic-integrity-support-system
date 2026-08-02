@@ -54,8 +54,11 @@ public final class ErrorMessage {
         public static final String PASSWORD_SAME_AS_OLD = "New password must be different from the current password.";
 
         public static final String CHANGE_AUTHORIZATION_CODE_TO_TOKEN_FAIL = "Cannot convert Authorization Code to Token";
+        public static final String CANNOT_CONVERT_OAUTH_CODE = "Cannot convert Oath code";
+        public static final String CANNOT_FETCH_OAUTH_USER_INFO = "Cannot fetch User infor";
         public static final String FACEBOOK_EMAIL_MISSING = "Your Facebook account is missing email";
         public static final String GOOGLE_EMAIL_MISSING = "Your Google account is missing email";
+        public static final String OUTLOOK_EMAIL_MISSING = "Your Outlook account is missing email";
 
     }
 
