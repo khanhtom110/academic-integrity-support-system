@@ -1,8 +1,12 @@
 package com.haui.lms.service;
 
-import com.haui.lms.mock.request.LoginRequestDto;
-import com.haui.lms.mock.response.LoginResponseDto;
+import com.haui.lms.dto.*;
+import org.springframework.stereotype.Service;
 
 public interface AuthenticationService {
-    LoginResponseDto login(LoginRequestDto request);
+    LoginResponse login(LoginRequest request);
+
+    void initRegister(RegisterRequest request);
+
+    RegisterResponse verifyOtp(VerifyOtpRequest request);
 }

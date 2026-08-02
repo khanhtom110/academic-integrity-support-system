@@ -1,22 +1,21 @@
-package com.haui.lms.mock.response;
+package com.haui.lms.dto;
 
 import com.haui.lms.constant.CommonConstant;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
+
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@FieldDefaults(level= AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class LoginResponseDto {
-    HttpStatus status;
-    String message;
+public class LoginResponse {
     String accessToken;
     String refreshToken;
-    String id;
+    UUID id;
     @Builder.Default
     String tokenType = CommonConstant.BEARER_TOKEN;
 }

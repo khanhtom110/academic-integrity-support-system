@@ -10,8 +10,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Getter
 @Setter
-@FieldDefaults(level= AccessLevel.PRIVATE)
-public class LoginRequestDto {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class LoginRequest {
     @Schema(description = "Tên đăng nhập", example = "user123")
     @NotBlank(message = ErrorMessage.NOT_BLANK_FIELD)
     String username;

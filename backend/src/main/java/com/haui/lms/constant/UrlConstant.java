@@ -18,6 +18,7 @@ public class UrlConstant {
         public static final String VERIFY_OTP = PREFIX + "/verify-otp";
         public static final String VERIFY_REGISTER_OTP = PREFIX + "/verify-register";
         public static final String RESET_PASSWORD = PREFIX + "/reset-password";
+        public static final String RESEND_OTP = PREFIX + "/resend-otp";
 
         public static final String GOOGLE = PREFIX + "/google";
         public static final String FACEBOOK = PREFIX + "/facebook";

@@ -1,5 +1,6 @@
 package com.haui.lms.mock;
 
+import com.haui.lms.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -7,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Getter
 @Setter
-@FieldDefaults(level= AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponseDto {
     String id;
     String username;
