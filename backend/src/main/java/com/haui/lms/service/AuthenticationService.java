@@ -2,6 +2,7 @@ package com.haui.lms.service;
 
 import com.haui.lms.dto.*;
 import com.haui.lms.dto.request.*;
+import jakarta.transaction.Transactional;
 
 public interface AuthenticationService {
     LoginResponse login(LoginRequest request);
@@ -13,4 +14,6 @@ public interface AuthenticationService {
     void logout(LogoutRequest request);
 
     LoginResponse refreshToken(RefreshTokenRequest request);
+
+    void resendOtp(ResendOtpRequest request);
 }

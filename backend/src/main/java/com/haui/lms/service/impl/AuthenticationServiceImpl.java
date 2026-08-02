@@ -16,8 +16,6 @@ import com.haui.lms.service.MailService;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.NonFinal;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.text.ParseException;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -71,8 +70,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             String userInfo = objectMapper.writeValueAsString(request);
             redisTemplate.opsForValue().set("REGISTRATION_DATA:" + request.getEmail(), userInfo, 5, TimeUnit.MINUTES);
             redisTemplate.opsForValue().set("REGISTRATION_OTP:" + request.getEmail(), otp, 5, TimeUnit.MINUTES);
-            System.out.println("DEBUG - Đã set OTP vào Redis với key: REGISTRATION_OTP:" + request.getEmail()
-                    + " và giá trị: " + otp);
         } catch (JacksonException e) {
             throw new AppException(500, ErrorMessage.EXCEPTION_GENERAL);
         }
@@ -86,7 +83,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public RegisterResponse verifyOtp(VerifyOtpRequest request) {
         String registerOtp = redisTemplate.opsForValue().get("REGISTRATION_OTP:" + request.getEmail());
         if (registerOtp == null || !registerOtp.equals(request.getOtp())) {
-            System.out.println("Register OTP in Redis: " + registerOtp);
             throw new AppException(400, ErrorMessage.Auth.INVALID_OTP);
         }
 
@@ -156,5 +152,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String newRefreshToken = jwtService.generateToken(user, true);
 
         return new LoginResponse(newAccessToken, newRefreshToken, user.getId(), CommonConstant.BEARER_TOKEN);
+    }
+
+    @Transactional
+    @Override
+    public void resendOtp(ResendOtpRequest request) {
+        String userInfo = redisTemplate.opsForValue().get("REGISTRATION_DATA:" + request.email());
+        if (userInfo == null) {
+            throw new AppException(400, ErrorMessage.Auth.SESSION_EXPIRED);
+        }
+        String newOtp = String.format("%06d", new Random().nextInt(1000000));
+
+        // Luu otp
+        try {
+            redisTemplate.opsForValue().set("REGISTRATION_OTP:" + request.email(), newOtp, 5, TimeUnit.MINUTES);
+        } catch (JacksonException e) {
+            throw new AppException(500, ErrorMessage.EXCEPTION_GENERAL);
+        }
+
+        // Gui email
+        mailService.sendOtp(request.email(), newOtp);
     }
 }

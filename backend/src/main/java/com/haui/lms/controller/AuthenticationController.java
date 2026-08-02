@@ -45,10 +45,14 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(SuccessMessage.Auth.REGISTER_SUCCESS, response));
     }
+
     // - POST /api/v1/auth/resend-otp (Em nhớ xem cái này có thể tái sử dụng lại cái gửi email của register hay k)
-    // @Operation(summary = "Gửi lại OTP", description = "Dùng để gửi lại OTP")
-    // @PostMapping(UrlConstant.Auth.RESEND_OTP)
-    // public ResponseEntity<ApiResponse<Void>> resendOtp(@Valid @RequestBody)
+    @Operation(summary = "Gửi lại OTP", description = "Dùng để gửi lại OTP")
+    @PostMapping(UrlConstant.Auth.RESEND_OTP)
+    public ResponseEntity<ApiResponse<Void>> resendOtp(@Valid @RequestBody ResendOtpRequest request) {
+        authenticationService.resendOtp(request);
+        return ResponseEntity.ok(ApiResponse.ok("", null));
+    }
 
     @Operation(summary = "Đăng nhập tài khoản", description = "Dùng để đăng nhập tài khoản")
     @PostMapping(UrlConstant.Auth.LOGIN)
