@@ -14,10 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Flow Quen mat khau - dung 2 endpoint theo dung phan cong lead da chot: POST /auth/forgot-password/request -> gui OTP
- * POST /auth/forgot-password/confirm -> verify OTP + doi mat khau (1 buoc)
- */
 @RestController
 @RequestMapping(ApiPath.API_V1)
 @RequiredArgsConstructor

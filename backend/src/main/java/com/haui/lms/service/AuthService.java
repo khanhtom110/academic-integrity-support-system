@@ -13,14 +13,17 @@ import com.haui.lms.security.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.haui.lms.constant.ErrorMessage;
+import com.haui.lms.exception.extended.AppException;
+import com.haui.lms.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final GoogleOAuth2Service googleOAuth2Service;
-    private final UserRepository userRepository;
     private final UserOAuthAccountRepository userOAuthAccountRepository;
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     @Transactional
     public AuthResponse loginWithGoogle(GoogleLoginRequest request) {
@@ -62,6 +65,12 @@ public class AuthService {
                 .providerUserId(providerUserId).build();
 
         userOAuthAccountRepository.save(oAuthAccount);
+    }
+
+    public String generateTestToken(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(404, ErrorMessage.User.USER_NOT_EXISTED));
+        return jwtService.generateToken(user, false);
     }
 
 }

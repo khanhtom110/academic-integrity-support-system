@@ -27,19 +27,23 @@ public class UserController {
 
     @GetMapping(UrlConstant.User.GET_PROFILE)
     public ApiResponse<UserProfileResponse> getProfile() {
-        return ApiResponse.ok(userService.getProfile(currentEmail()));
+        String email = currentEmail();
+        UserProfileResponse profile = userService.getProfile(email);
+        return ApiResponse.ok(profile);
     }
 
     @PostMapping(UrlConstant.User.GET_PROFILE)
     public ApiResponse<UserProfileResponse> updateProfile(
             @Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
-        return ApiResponse.ok(SuccessMessage.User.UPDATE_PROFILE_SUCCESS,
-                userService.updateProfile(currentEmail(), updateProfileRequest));
+        String email = currentEmail();
+        UserProfileResponse updatedFrofile = userService.updateProfile(email, updateProfileRequest);
+        return ApiResponse.ok(SuccessMessage.User.UPDATE_PROFILE_SUCCESS, updatedFrofile);
     }
 
     @PostMapping(UrlConstant.User.CHANGE_PASSWORD)
     public ApiResponse<Void> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
-        userService.changePassword(currentEmail(), changePasswordRequest);
+        String email = currentEmail();
+        userService.changePassword(email, changePasswordRequest);
         return ApiResponse.ok(SuccessMessage.User.CHANGE_PASSWORD_SUCCESS, null);
     }
 
