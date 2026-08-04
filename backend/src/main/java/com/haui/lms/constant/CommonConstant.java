@@ -11,6 +11,8 @@ public final class CommonConstant {
     public static final int EMAIL_LENGTH = 100;
     public static final int ADDRESS_LENGTH = 255;
     public static final int CONDITION_LENGTH = 1000;
+    public static final String BEARER_TOKEN = "Bearer";
+    public static final int BCRYPT_STRENGTH = 10;
 
     public static final String GOOGLE_PROVIDER = "google";
 
