@@ -4,20 +4,43 @@
 
 .input-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-top: 4px;
   color: var(--neutral-900);
-  font-weight: 500;
 }
 
 .input-group input {
   width: 100%;
   padding: 14px 16px;
+
   border: 1px solid var(--neutral-500);
+
   border-radius: var(--radius-md);
-  background: var(--neutral-300);
+
   transition: var(--transition);
 }
 
+/* Focus */
+
 .input-group input:focus {
   border-color: var(--primary-500);
+}
+
+/* Khi có lỗi */
+
+.input-group input.input-invalid {
+  border-color: var(--error-500);
+}
+
+/* Thông báo lỗi */
+
+.input-error {
+  margin-top: 6px;
+
+  font-size: 13px;
+
+  font-weight: 400;
+
+  color: var(--error-500);
+
+  line-height: 1.4;
 }

@@ -1,0 +1,51 @@
+.email-sent {
+  text-align: center;
+}
+
+.success-icon {
+  width: 80px;
+
+  height: 80px;
+
+  margin: 0 auto 24px;
+
+  border-radius: 50%;
+
+  background: var(--success-100);
+
+  color: var(--success-500);
+
+  font-size: 36px;
+
+  font-weight: 700;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+}
+
+.email-description {
+  margin: 20px 0 32px;
+
+  line-height: 1.7;
+
+  color: var(--neutral-700);
+}
+
+.continue-link {
+  margin-top: 24px;
+}
+
+.continue-link a {
+  color: var(--primary-500);
+
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+.continue-link a:hover {
+  text-decoration: underline;
+}

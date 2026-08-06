@@ -10,7 +10,7 @@
   border-radius: var(--radius-md);
 
   transition: var(--transition);
-
+  margin-top: 12px;
   font-weight: 600;
 }
 

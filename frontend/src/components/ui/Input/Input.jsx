@@ -1,13 +1,16 @@
+import { forwardRef } from "react";
 import "./Input.css";
 
-function Input({ label, id, ...props }) {
+const Input = forwardRef(function Input({ label, error, ...props }, ref) {
   return (
     <div className="input-group">
-      {label && <label htmlFor={id}>{label}</label>}
+      {label && <label>{label}</label>}
 
-      <input id={id} {...props} />
+      <input ref={ref} {...props} />
+
+      {error && <p className="input-error">{error}</p>}
     </div>
   );
-}
+});
 
 export default Input;
