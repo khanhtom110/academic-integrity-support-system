@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -91,6 +92,17 @@ public class JwtService {
             // Kiem tra email
             String email = signedJWT.getJWTClaimsSet().getSubject();
             boolean isUsernameMatch = email != null && email.equals(userDetails.getUsername());
+
+            // Token phat truoc thoi diem doi mat khau gan nhat thi coi la invalid
+            // (ap dung khi user reset password, force logout toan bo session cu)
+            if (userDetails instanceof CustomUserDetails customUserDetails) {
+                Instant passwordChangedAt = customUserDetails.getPasswordChangedAt();
+                Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
+                if (passwordChangedAt != null && issueTime != null
+                        && issueTime.toInstant().isBefore(passwordChangedAt)) {
+                    return false;
+                }
+            }
 
             return isSignatureValid && !isTokenExpired && isUsernameMatch;
 

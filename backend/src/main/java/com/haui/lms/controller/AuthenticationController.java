@@ -54,6 +54,27 @@ public class AuthenticationController {
         return ResponseEntity.ok(ApiResponse.ok("", null));
     }
 
+    @Operation(summary = "Quên mật khẩu", description = "Gửi OTP về email để đặt lại mật khẩu")
+    @PostMapping(UrlConstant.Auth.FORGOT_PASSWORD)
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authenticationService.forgotPassword(request);
+        return ResponseEntity.ok(ApiResponse.ok(SuccessMessage.Auth.SEND_OTP_SUCCESS, null));
+    }
+
+    @Operation(summary = "Xác thực OTP quên mật khẩu", description = "Xác thực OTP trước khi cho phép đặt mật khẩu mới")
+    @PostMapping(UrlConstant.Auth.VERIFY_RESET_OTP)
+    public ResponseEntity<ApiResponse<Void>> verifyResetOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        authenticationService.verifyResetOtp(request);
+        return ResponseEntity.ok(ApiResponse.ok(SuccessMessage.Auth.VERIFY_OTP_SUCCESS, null));
+    }
+
+    @Operation(summary = "Đặt lại mật khẩu", description = "Đặt mật khẩu mới sau khi đã xác thực OTP")
+    @PostMapping(UrlConstant.Auth.RESET_PASSWORD)
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authenticationService.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.ok(SuccessMessage.Auth.RESET_PASSWORD_SUCCESS, null));
+    }
+
     @Operation(summary = "Đăng nhập tài khoản", description = "Dùng để đăng nhập tài khoản")
     @PostMapping(UrlConstant.Auth.LOGIN)
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
