@@ -23,6 +23,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -172,5 +173,59 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // Gui email
         mailService.sendOtp(request.email(), newOtp);
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequest request) {
+        userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new AppException(400, ErrorMessage.User.EMAIL_NOT_EXISTED));
+
+        String otp = String.format("%06d", new Random().nextInt(1000000));
+
+        // Luu otp
+        redisTemplate.opsForValue().set("RESET_PASSWORD_OTP:" + request.email(), otp, 5, TimeUnit.MINUTES);
+
+        // Gui email (tai su dung ham gui OTP dang co)
+        mailService.sendOtp(request.email(), otp);
+    }
+
+    @Override
+    public void verifyResetOtp(VerifyOtpRequest request) {
+        String cachedOtp = redisTemplate.opsForValue().get("RESET_PASSWORD_OTP:" + request.getEmail());
+        if (cachedOtp == null || !cachedOtp.equals(request.getOtp())) {
+            throw new AppException(400, ErrorMessage.Auth.INVALID_OTP);
+        }
+
+        // OTP dung -> xoa (dung 1 lan), danh dau da xac thuc de buoc reset-password
+        // khong can nhap lai OTP nua (trong 10 phut) (khop voi UX 3 buoc: email -> otp -> mat khau moi)
+        redisTemplate.delete("RESET_PASSWORD_OTP:" + request.getEmail());
+        redisTemplate.opsForValue().set("RESET_PASSWORD_VERIFIED:" + request.getEmail(), "true", 10, TimeUnit.MINUTES);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        String verified = redisTemplate.opsForValue().get("RESET_PASSWORD_VERIFIED:" + request.email());
+        if (verified == null) {
+            throw new AppException(400, ErrorMessage.Auth.RESET_SESSION_EXPIRED);
+        }
+
+        if (!request.newPassword().equals(request.confirmPassword())) {
+            throw new AppException(400, ErrorMessage.PASSWORD_MISMATCH);
+        }
+
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new AppException(400, ErrorMessage.User.EMAIL_NOT_EXISTED));
+
+        if (user.getPassword() != null && passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            throw new AppException(400, ErrorMessage.Auth.PASSWORD_SAME_AS_OLD);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        // Danh dau thoi diem doi mat khau -> vo hieu hoa moi token phat truoc do (JwtService se check lai)
+        user.setPasswordChangedAt(Instant.now());
+        userRepository.save(user);
+
+        redisTemplate.delete("RESET_PASSWORD_VERIFIED:" + request.email());
     }
 }

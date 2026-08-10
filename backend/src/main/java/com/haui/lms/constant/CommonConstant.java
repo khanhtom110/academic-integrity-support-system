@@ -8,6 +8,8 @@ public final class CommonConstant {
     public static final int FULLNAME_LENGTH = 120;
     public static final int PHONE_LENGTH = 15;
     public static final String PHONE_REGEX = "^0[35789]\\d{8}$";
+    // Yeu cau it nhat 1 chu hoa, 1 chu thuong, 1 chu so, 1 ky tu dac biet (do dai kiem tra rieng qua @Size)
+    public static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).*$";
     public static final int EMAIL_LENGTH = 100;
     public static final int ADDRESS_LENGTH = 255;
     public static final int CONDITION_LENGTH = 1000;

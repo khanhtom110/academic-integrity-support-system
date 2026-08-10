@@ -16,4 +16,10 @@ public interface AuthenticationService {
     LoginResponse refreshToken(RefreshTokenRequest request);
 
     void resendOtp(ResendOtpRequest request);
+
+    void forgotPassword(ForgotPasswordRequest request);
+
+    void verifyResetOtp(VerifyOtpRequest request);
+
+    void resetPassword(ResetPasswordRequest request);
 }

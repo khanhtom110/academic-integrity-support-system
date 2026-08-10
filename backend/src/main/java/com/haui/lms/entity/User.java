@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -43,4 +44,8 @@ public class User extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    // Thoi diem doi mat khau gan nhat, dung de vo hieu hoa token cu phat truoc do
+    @Column(name = "password_changed_at")
+    private Instant passwordChangedAt;
 }

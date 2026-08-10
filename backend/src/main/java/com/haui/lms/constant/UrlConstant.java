@@ -17,6 +17,7 @@ public class UrlConstant {
         public static final String FORGOT_PASSWORD = PREFIX + "/forgot-password";
         public static final String VERIFY_OTP = PREFIX + "/verify-otp";
         public static final String VERIFY_REGISTER_OTP = PREFIX + "/verify-register";
+        public static final String VERIFY_RESET_OTP = PREFIX + "/verify-reset-otp";
         public static final String RESET_PASSWORD = PREFIX + "/reset-password";
         public static final String RESEND_OTP = PREFIX + "/resend-otp";
 
