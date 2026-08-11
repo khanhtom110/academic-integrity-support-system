@@ -5,7 +5,10 @@ import "./OAuthCallback.css";
 
 import Button from "../../../../components/ui/Button";
 import { ROUTES } from "../../../../constants/routes";
-import { consumeOAuthState } from "../../../../constants/oauthConfig";
+import {
+  consumeOAuthState,
+  getAppOrigin,
+} from "../../../../constants/oauthConfig";
 import { useAuth } from "../../../../hooks/useAuth";
 import {
   loginWithFacebook,
@@ -26,11 +29,12 @@ const tokenExchangeErrors = [
 
 function getOAuthErrorMessage(error) {
   const backendMessage = error.response?.data?.message;
+  const appOrigin = getAppOrigin();
 
   if (tokenExchangeErrors.includes(backendMessage)) {
     return (
       "Mã đăng nhập không thể đổi thành token. Vui lòng bắt đầu lại từ " +
-      "http://localhost:5173 và không sử dụng lại URL callback cũ."
+      `${appOrigin} và không sử dụng lại URL callback cũ.`
     );
   }
 
@@ -52,6 +56,7 @@ function OAuthCallback({ provider }) {
   const returnedState = searchParams.get("state");
   const providerError = searchParams.get("error");
   const providerErrorDescription = searchParams.get("error_description");
+  const appOrigin = getAppOrigin();
 
   useEffect(() => {
     if (hasProcessed.current) {
@@ -72,7 +77,7 @@ function OAuthCallback({ provider }) {
       if (!consumeOAuthState(provider, returnedState)) {
         setErrorMessage(
           "Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng bắt đầu " +
-            "lại trực tiếp từ http://localhost:5173.",
+            `lại trực tiếp từ ${appOrigin}.`,
         );
         return;
       }
@@ -113,7 +118,16 @@ function OAuthCallback({ provider }) {
     };
 
     handleOAuthLogin();
-  }, [code, login, navigate, provider, providerError, providerErrorDescription, returnedState]);
+  }, [
+    appOrigin,
+    code,
+    login,
+    navigate,
+    provider,
+    providerError,
+    providerErrorDescription,
+    returnedState,
+  ]);
 
   if (errorMessage) {
     return (

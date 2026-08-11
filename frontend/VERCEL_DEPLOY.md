@@ -13,7 +13,7 @@
 Deploy để nhận domain production cố định, ví dụ:
 
 ```text
-https://aiss-system.vercel.app
+https://academic-integrity-support-system.vercel.app
 ```
 
 Không dùng Preview URL thay đổi theo từng commit làm OAuth callback.
@@ -24,7 +24,7 @@ Thêm các biến sau cho môi trường Production trên Vercel:
 
 ```env
 VITE_API_BASE_URL=
-VITE_APP_ORIGIN=https://aiss-system.vercel.app
+VITE_APP_ORIGIN=https://academic-integrity-support-system.vercel.app
 VITE_GOOGLE_CLIENT_ID=930372998229-hvum0n94hf69l7u7po0vc5rncage449s.apps.googleusercontent.com
 VITE_FACEBOOK_CLIENT_ID=2450540598706287
 VITE_OUTLOOK_CLIENT_ID=f2fbd8d6-479a-4444-ae64-d40b9ebce928
@@ -37,9 +37,9 @@ Thay domain ví dụ bằng domain production thực tế. Không thêm client s
 Gửi domain production cho backend để cấu hình ba redirect URI:
 
 ```text
-https://aiss-system.vercel.app/oauth2/callback/google
-https://aiss-system.vercel.app/oauth2/callback/facebook
-https://aiss-system.vercel.app/oauth2/callback/outlook
+https://academic-integrity-support-system.vercel.app/oauth2/callback/google
+https://academic-integrity-support-system.vercel.app/oauth2/callback/facebook
+https://academic-integrity-support-system.vercel.app/oauth2/callback/outlook
 ```
 
 Đăng ký đúng các URI này trên Google Cloud, Meta Developer và Microsoft Entra.
