@@ -1,5 +1,6 @@
 import "./LoginForm.css";
 
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
@@ -10,6 +11,7 @@ import Input from "../../../../components/ui/Input";
 import PasswordInput from "../../../../components/ui/PasswordInput";
 import Button from "../../../../components/ui/Button";
 import Divider from "../../../../components/ui/Divider";
+import FormMessage from "../../../../components/ui/FormMessage";
 import SocialButton from "../../../../components/ui/SocialButton";
 
 import { loginSchema } from "../../validation/loginSchema";
@@ -22,6 +24,7 @@ function LoginForm() {
   const navigate = useNavigate();
 
   const auth = useAuth();
+  const [submitError, setSubmitError] = useState("");
 
   const {
     register,
@@ -29,7 +32,8 @@ function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    mode: "onBlur",
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: {
       email: "",
       password: "",
@@ -37,25 +41,29 @@ function LoginForm() {
   });
 
   const onSubmit = async (formData) => {
+    setSubmitError("");
+
     try {
       const response = await loginService(formData);
 
-      console.log("===== LOGIN RESPONSE =====");
-      console.log(response);
-
       auth.login(response.data);
-
-      console.log("===== AUTH.LOGIN DONE =====");
 
       navigate(ROUTES.HOME);
     } catch (error) {
-      console.error(error);
+      setSubmitError(
+        error.response?.data?.message ||
+          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+      );
     }
   };
 
   return (
     <Card className="login-form">
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        onChange={() => submitError && setSubmitError("")}
+        noValidate
+      >
         <h2 className="heading-2 login-title">Đăng nhập</h2>
 
         <Input
@@ -76,7 +84,9 @@ function LoginForm() {
           <Link to={ROUTES.FORGOT_PASSWORD}>Quên mật khẩu?</Link>
         </div>
 
-        <Button type="submit">
+        <FormMessage>{submitError}</FormMessage>
+
+        <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
           {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
         </Button>
 

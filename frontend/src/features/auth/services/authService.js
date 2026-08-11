@@ -1,5 +1,6 @@
 import { API } from "../../../constants/api";
 import apiClient from "../../../services/apiClient";
+
 /**
  * ============================================================
  * Authentication Service
@@ -30,11 +31,26 @@ export const resendOtp = async (data) => {
   return response.data;
 };
 
+export const forgotPassword = async (data) => {
+  const response = await apiClient.post(API.AUTH.FORGOT_PASSWORD, data);
+
+  return response.data;
+};
+
+export const verifyResetOtp = async (data) => {
+  const response = await apiClient.post(API.AUTH.VERIFY_RESET_OTP, data);
+
+  return response.data;
+};
+
+export const resetPassword = async (data) => {
+  const response = await apiClient.post(API.AUTH.RESET_PASSWORD, data);
+
+  return response.data;
+};
+
 /**
- * API này sẽ được Interceptor sử dụng ở Bước 10.
- *
- * Hiện tại vẫn dùng apiClient.
- * Sang Bước 10 sẽ chuyển sang refreshClient.
+ * Refresh Token
  */
 export const refreshToken = async (refreshToken) => {
   const response = await apiClient.post(API.AUTH.REFRESH_TOKEN, {
@@ -44,17 +60,32 @@ export const refreshToken = async (refreshToken) => {
   return response.data;
 };
 
+/**
+ * Logout
+ */
 export const logout = async () => {
   const response = await apiClient.post(API.USER.LOGOUT);
 
   return response.data;
 };
 
-export const loginWithGoogle = (token) =>
-  apiClient.post(API.AUTH.GOOGLE_LOGIN, token);
+/**
+ * ============================================================
+ * OAuth Login
+ * ============================================================
+ */
 
-export const loginWithFacebook = (token) =>
-  apiClient.post(API.AUTH.FACEBOOK_LOGIN, token);
+const exchangeOAuthCode = async (endpoint, code) => {
+  const response = await apiClient.post(endpoint, { code });
 
-export const loginWithOutlook = (token) =>
-  apiClient.post(API.AUTH.OUTLOOK_LOGIN, token);
+  return response.data;
+};
+
+export const loginWithGoogle = (code) =>
+  exchangeOAuthCode(API.AUTH.GOOGLE_LOGIN, code);
+
+export const loginWithFacebook = (code) =>
+  exchangeOAuthCode(API.AUTH.FACEBOOK_LOGIN, code);
+
+export const loginWithOutlook = (code) =>
+  exchangeOAuthCode(API.AUTH.OUTLOOK_LOGIN, code);

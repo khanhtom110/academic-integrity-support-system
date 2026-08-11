@@ -23,12 +23,19 @@
 
 .input-group input:focus {
   border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(19, 99, 223, 0.14);
 }
 
 /* Khi có lỗi */
 
 .input-group input.input-invalid {
   border-color: var(--error-500);
+  background: var(--error-200);
+}
+
+.input-group input.input-invalid:focus {
+  border-color: var(--error-500);
+  box-shadow: 0 0 0 3px rgba(222, 41, 56, 0.14);
 }
 
 /* Thông báo lỗi */

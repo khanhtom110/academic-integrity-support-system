@@ -1,9 +1,6 @@
-import { useMemo, useState } from "react";
-
+import { useCallback, useMemo, useState } from "react";
 import { AuthContext } from "../contexts";
-
 import { setAccessToken, clearAccessToken } from "../../services/tokenManager";
-
 import {
   saveRefreshToken,
   removeRefreshToken,
@@ -23,74 +20,51 @@ function AuthProvider({ children }) {
   /**
    * Login
    */
-  const login = (authData) => {
-    /**
-     * authData
-     * {
-     *    accessToken,
-     *    refreshToken,
-     *    id,
-     *    tokenType
-     * }
-     */
-
+  const login = useCallback((authData) => {
     setAccessToken(authData.accessToken);
 
     saveRefreshToken(authData.refreshToken);
 
     setUser({
-      id: authData.id,
-      tokenType: authData.tokenType,
+      id: authData.id ?? null,
+      tokenType: authData.tokenType ?? "Bearer",
     });
 
     setIsAuthenticated(true);
-    console.log("===== AUTH PROVIDER =====");
-    console.log(authData);
-  };
-
+  }, []);
   /**
    * Chỉ cập nhật Access Token
    * Sau khi Refresh Token thành công
    */
-  const updateAccessToken = (token) => {
+  const updateAccessToken = useCallback((token) => {
     setAccessToken(token);
-  };
-
+  }, []);
   /**
    * Logout
    */
-  const logout = () => {
+  const logout = useCallback(() => {
     clearAccessToken();
-
     removeRefreshToken();
-
     setUser(null);
-
     setIsAuthenticated(false);
-  };
+  }, []);
 
   /**
    * Restore Session
    *
    * (Làm ở Module tiếp theo)
    */
-  const restoreSession = () => {};
-
+  const restoreSession = useCallback(() => {}, []);
   const value = useMemo(
     () => ({
       user,
-
       isAuthenticated,
-
       login,
-
       logout,
-
       updateAccessToken,
-
       restoreSession,
     }),
-    [user, isAuthenticated],
+    [user, isAuthenticated, login, logout, updateAccessToken, restoreSession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,8 +1,12 @@
+import { useState } from "react";
+
 import "./SocialButton.css";
 
 import googleIcon from "../../../assets/icons/google.svg";
 import outlookIcon from "../../../assets/icons/Outlook.svg";
-import facebookIcon from "../../../assets/icons/facebook.svg";
+import facebookIcon from "../../../assets/icons/Facebook.svg";
+
+import { createOAuthAuthorizationUrl } from "../../../constants/oauthConfig";
 
 const icons = {
   google: googleIcon,
@@ -17,11 +21,45 @@ const labels = {
 };
 
 function SocialButton({ provider }) {
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
+  const handleLogin = () => {
+    try {
+      setLoginError("");
+      setIsRedirecting(true);
+      window.location.assign(createOAuthAuthorizationUrl(provider));
+    } catch (error) {
+      setIsRedirecting(false);
+      setLoginError(error.message);
+    }
+  };
+
   return (
-    <button className="social-btn">
-      <img src={icons[provider]} alt={labels[provider]} />
-      <span>{labels[provider]}</span>
-    </button>
+    <div className="social-btn-wrapper">
+      <button
+        type="button"
+        className="social-btn"
+        onClick={handleLogin}
+        disabled={isRedirecting}
+        aria-label={`Đăng nhập bằng ${labels[provider]}`}
+        aria-describedby={loginError ? `oauth-error-${provider}` : undefined}
+      >
+        <img src={icons[provider]} alt="" aria-hidden="true" />
+
+        <span>{isRedirecting ? "Đang chuyển..." : labels[provider]}</span>
+      </button>
+
+      {loginError && (
+        <span
+          id={`oauth-error-${provider}`}
+          className="social-btn-error"
+          role="alert"
+        >
+          {loginError}
+        </span>
+      )}
+    </div>
   );
 }
 

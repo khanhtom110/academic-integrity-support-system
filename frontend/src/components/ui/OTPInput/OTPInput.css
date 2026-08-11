@@ -35,4 +35,9 @@
 
 .otp-invalid {
   border-color: var(--error-500) !important;
+  background: var(--error-200);
+}
+
+.otp-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(222, 41, 56, 0.14);
 }

@@ -6,6 +6,9 @@ export const API = {
     // OTP
     VERIFY_OTP: "/api/v1/auth/verify-otp",
     RESEND_OTP: "/api/v1/auth/resend-otp",
+    FORGOT_PASSWORD: "/api/v1/auth/forgot-password",
+    VERIFY_RESET_OTP: "/api/v1/auth/verify-reset-otp",
+    RESET_PASSWORD: "/api/v1/auth/reset-password",
     // REFRESH_TOKEN
     REFRESH_TOKEN: "/api/v1/auth/refresh",
     // LOGIN: GOOGLE FACEBOOK OUTLOOK

@@ -1,14 +1,44 @@
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 import "./Input.css";
 
-const Input = forwardRef(function Input({ label, error, ...props }, ref) {
+const Input = forwardRef(function Input(
+  {
+    label,
+    error,
+    id,
+    className = "",
+    "aria-describedby": ariaDescribedBy,
+    ...props
+  },
+  ref,
+) {
+  const generatedId = useId();
+  const inputId = id || generatedId;
+  const errorId = `${inputId}-error`;
+  const describedBy = [ariaDescribedBy, error ? errorId : null]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div className="input-group">
-      {label && <label>{label}</label>}
+      {label && <label htmlFor={inputId}>{label}</label>}
 
-      <input ref={ref} {...props} />
+      <input
+        id={inputId}
+        ref={ref}
+        className={[className, error ? "input-invalid" : ""]
+          .filter(Boolean)
+          .join(" ")}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={describedBy || undefined}
+        {...props}
+      />
 
-      {error && <p className="input-error">{error}</p>}
+      {error && (
+        <p id={errorId} className="input-error" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 });

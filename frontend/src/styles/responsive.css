@@ -1,0 +1,124 @@
+/* Mobile: phones in portrait and landscape */
+@media (max-width: 599px) {
+  .auth-layout {
+    min-height: 100dvh;
+    align-items: flex-start;
+    padding: 20px 12px;
+    background-position: center;
+  }
+
+  .auth-wrapper,
+  .auth-container {
+    width: 100%;
+  }
+
+  .auth-logo {
+    width: 72px;
+    margin-bottom: 14px;
+  }
+
+  .card,
+  .login-form {
+    padding: 24px 18px;
+    border-radius: var(--radius-md);
+  }
+
+  .login-form h2,
+  .register-title,
+  .reset-title {
+    margin-bottom: 22px;
+  }
+
+  .input-group input,
+  .password-group input,
+  .primary-btn {
+    padding: 12px 14px;
+  }
+
+  .social-login {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .social-btn {
+    min-height: 44px;
+  }
+
+  .otp-input {
+    gap: 6px;
+    margin: 20px 0;
+  }
+
+  .otp-box {
+    width: 42px;
+    height: 50px;
+    font-size: 20px;
+  }
+
+  .form-message {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .email-description,
+  .forgot-description,
+  .otp-description {
+    margin-bottom: 24px;
+  }
+}
+
+/* Tablet and iPad */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .auth-layout {
+    min-height: 100dvh;
+    padding: 32px 24px;
+    background-position: center;
+  }
+
+  .auth-wrapper {
+    width: 100%;
+  }
+
+  .auth-container {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .auth-logo {
+    width: 88px;
+    margin-bottom: 18px;
+  }
+
+  .card,
+  .login-form {
+    padding: 36px;
+  }
+
+  .otp-box {
+    width: 52px;
+    height: 58px;
+  }
+}
+
+/* Desktop and larger screens */
+@media (min-width: 1024px) {
+  .auth-layout {
+    min-height: 100vh;
+    padding: 40px;
+    background-position: center;
+  }
+
+  .auth-wrapper {
+    width: 100%;
+  }
+
+  .auth-container {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .card,
+  .login-form {
+    padding: 40px;
+  }
+}

@@ -1,0 +1,37 @@
+.form-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 0 6px;
+  padding: 12px 14px;
+  border: 1px solid;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.form-message-error {
+  border-color: var(--error-400);
+  background: var(--error-200);
+  color: var(--error-500);
+}
+
+.form-message-success {
+  border-color: var(--success-400);
+  background: var(--success-200);
+  color: #257a1d;
+}
+
+.form-message-icon {
+  display: inline-flex;
+  flex: 0 0 20px;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}

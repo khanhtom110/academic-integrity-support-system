@@ -2,7 +2,13 @@ import "./OTPInput.css";
 
 import { useEffect, useRef, useState } from "react";
 
-function OTPInput({ value = "", onChange, hasError = false, length = 6 }) {
+function OTPInput({
+  value = "",
+  onChange,
+  hasError = false,
+  errorId,
+  length = 6,
+}) {
   const [otp, setOtp] = useState(Array(length).fill(""));
 
   const inputRefs = useRef([]);
@@ -78,7 +84,11 @@ function OTPInput({ value = "", onChange, hasError = false, length = 6 }) {
           value={digit}
           maxLength={1}
           inputMode="numeric"
+          autoComplete={index === 0 ? "one-time-code" : "off"}
           className={`otp-box ${hasError ? "otp-invalid" : ""}`}
+          aria-label={`Chữ số OTP ${index + 1}`}
+          aria-invalid={hasError ? "true" : undefined}
+          aria-describedby={hasError ? errorId : undefined}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
         />

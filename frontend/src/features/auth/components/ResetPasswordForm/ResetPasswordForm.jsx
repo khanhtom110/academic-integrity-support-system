@@ -1,6 +1,7 @@
 import "./ResetPasswordForm.css";
 
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,17 +9,24 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import PasswordInput from "../../../../components/ui/PasswordInput";
 import Button from "../../../../components/ui/Button";
 import Card from "../../../../components/ui/Card";
+import FormMessage from "../../../../components/ui/FormMessage";
 
 import { ROUTES } from "../../../../constants/routes";
+import { resetPassword } from "../../services/authService";
 import { resetPasswordSchema } from "../../validation/resetPasswordSchema";
 
 function ResetPasswordForm() {
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const email = state?.email;
+  const canResetPassword =
+    state?.purpose === "reset-password" && state?.otpVerified === true;
+  const [submitError, setSubmitError] = useState("");
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
@@ -29,18 +37,42 @@ function ResetPasswordForm() {
     reValidateMode: "onChange",
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  useEffect(() => {
+    if (!email || !canResetPassword) {
+      navigate(ROUTES.FORGOT_PASSWORD, { replace: true });
+    }
+  }, [canResetPassword, email, navigate]);
 
-    // TODO
-    // authService.resetPassword(data);
+  if (!email || !canResetPassword) {
+    return null;
+  }
 
-    navigate(ROUTES.LOGIN);
+  const onSubmit = async ({ password, confirmPassword }) => {
+    setSubmitError("");
+
+    try {
+      await resetPassword({
+        email,
+        newPassword: password,
+        confirmPassword,
+      });
+
+      navigate(ROUTES.RESET_PASSWORD_SUCCESS, { replace: true });
+    } catch (error) {
+      setSubmitError(
+        error.response?.data?.message ||
+          "Không thể đặt lại mật khẩu. Vui lòng thử lại.",
+      );
+    }
   };
 
   return (
     <Card className="reset-password-form">
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        onChange={() => submitError && setSubmitError("")}
+        noValidate
+      >
         <h2 className="heading-2 reset-title">Đặt lại mật khẩu</h2>
 
         <PasswordInput
@@ -67,7 +99,11 @@ function ResetPasswordForm() {
           {...register("confirmPassword")}
         />
 
-        <Button type="submit">Khôi phục mật khẩu</Button>
+        <FormMessage>{submitError}</FormMessage>
+
+        <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
+          {isSubmitting ? "Đang cập nhật..." : "Khôi phục mật khẩu"}
+        </Button>
 
         <div className="login-link body-2">
           <span>Nhớ mật khẩu?</span>

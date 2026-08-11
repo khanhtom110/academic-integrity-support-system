@@ -1,5 +1,4 @@
 import apiClient from "./apiClient";
-
 import { API } from "../constants/api";
 
 import {
@@ -23,9 +22,6 @@ apiClient.interceptors.request.use(
   (config) => {
     const accessToken = getAccessToken();
 
-    console.log("===== REQUEST INTERCEPTOR =====");
-    console.log("Access Token:", accessToken);
-
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -46,17 +42,44 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Không có response
+    /**
+     * Không có response
+     */
     if (!error.response) {
       return Promise.reject(error);
     }
 
-    // Không phải 401
+    /**
+     * Không refresh đối với các API public
+     */
+    const publicApis = [
+      API.AUTH.LOGIN,
+      API.AUTH.REGISTER,
+      API.AUTH.VERIFY_OTP,
+      API.AUTH.RESEND_OTP,
+      API.AUTH.FORGOT_PASSWORD,
+      API.AUTH.VERIFY_RESET_OTP,
+      API.AUTH.RESET_PASSWORD,
+      API.AUTH.REFRESH_TOKEN,
+      API.AUTH.GOOGLE_LOGIN,
+      API.AUTH.FACEBOOK_LOGIN,
+      API.AUTH.OUTLOOK_LOGIN,
+    ];
+
+    if (publicApis.includes(originalRequest.url)) {
+      return Promise.reject(error);
+    }
+
+    /**
+     * Không phải 401
+     */
     if (error.response.status !== 401) {
       return Promise.reject(error);
     }
 
-    // Tránh lặp vô hạn
+    /**
+     * Tránh refresh nhiều lần
+     */
     if (originalRequest._retry) {
       return Promise.reject(error);
     }
@@ -70,22 +93,10 @@ apiClient.interceptors.response.use(
         throw new Error("Refresh Token không tồn tại.");
       }
 
-      /**
-       * Gọi API Refresh Token
-       */
       const response = await apiClient.post(API.AUTH.REFRESH_TOKEN, {
         refreshToken,
       });
 
-      /**
-       * Backend trả:
-       * {
-       *    accessToken,
-       *    refreshToken,
-       *    id,
-       *    tokenType
-       * }
-       */
       const auth = response.data.data;
 
       /**
@@ -94,7 +105,7 @@ apiClient.interceptors.response.use(
       setAccessToken(auth.accessToken);
 
       /**
-       * Nếu Backend cấp Refresh Token mới
+       * Backend có cấp Refresh Token mới
        */
       if (auth.refreshToken) {
         saveRefreshToken(auth.refreshToken);
@@ -106,21 +117,13 @@ apiClient.interceptors.response.use(
       originalRequest.headers.Authorization = `Bearer ${auth.accessToken}`;
 
       /**
-       * Gửi lại Request cũ
+       * Gửi lại request cũ
        */
       return apiClient(originalRequest);
     } catch (err) {
-      /**
-       * Refresh Token hết hạn
-       */
-
       clearAccessToken();
 
       removeRefreshToken();
-
-      /**
-       * Quay về Login
-       */
 
       window.location.href = "/login";
 

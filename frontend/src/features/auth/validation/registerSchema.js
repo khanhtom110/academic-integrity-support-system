@@ -4,11 +4,6 @@ export const registerSchema = z
   .object({
     fullName: z.string().trim().min(1, "Vui lòng nhập họ và tên."),
 
-    username: z
-      .string()
-      .trim()
-      .min(4, "Tên đăng nhập phải có ít nhất 4 ký tự."),
-
     email: z
       .string()
       .trim()

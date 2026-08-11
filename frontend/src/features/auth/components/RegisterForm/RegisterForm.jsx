@@ -1,52 +1,76 @@
 import "./RegisterForm.css";
 
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { registerSchema } from "../../validation/registerSchema";
-import { ROUTES } from "../../../../constants/routes";
 
 import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import PasswordInput from "../../../../components/ui/PasswordInput";
 import Button from "../../../../components/ui/Button";
 import Divider from "../../../../components/ui/Divider";
+import FormMessage from "../../../../components/ui/FormMessage";
 import SocialButton from "../../../../components/ui/SocialButton";
 
+import { registerSchema } from "../../validation/registerSchema";
+import { register as registerService } from "../../services/authService";
+
+import { ROUTES } from "../../../../constants/routes";
+
 function RegisterForm() {
+  const navigate = useNavigate();
+  const [submitError, setSubmitError] = useState("");
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
-
     mode: "onSubmit",
-
     reValidateMode: "onChange",
-
     defaultValues: {
       fullName: "",
-      username: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (formData) => {
+    setSubmitError("");
+
+    try {
+      await registerService(formData);
+      /**
+       * Chuyển sang trang OTP
+       * Sau này sẽ truyền email nếu cần.
+       */
+      navigate(ROUTES.OTP, {
+        state: {
+          email: formData.email,
+        },
+      });
+    } catch (error) {
+      setSubmitError(
+        error.response?.data?.message ||
+          "Đăng ký thất bại. Vui lòng thử lại.",
+      );
+    }
   };
 
   return (
     <Card className="register-form">
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        onChange={() => submitError && setSubmitError("")}
+        noValidate
+      >
         <h2 className="heading-2 register-title">Đăng ký</h2>
 
         <Input
-          id="fullName"
           label="Họ và tên"
           placeholder="Nhập họ và tên"
           error={errors.fullName?.message}
@@ -54,59 +78,51 @@ function RegisterForm() {
         />
 
         <Input
-          id="username"
-          label="Tên đăng nhập"
-          placeholder="Nhập tên đăng nhập"
-          error={errors.username?.message}
-          {...register("username")}
-        />
-
-        <Input
-          id="email"
-          label="Địa chỉ email"
+          label="Email"
           placeholder="Nhập địa chỉ email"
           error={errors.email?.message}
           {...register("email")}
         />
 
         <PasswordInput
-          id="password"
           label="Mật khẩu"
           placeholder="Nhập mật khẩu"
           error={errors.password?.message}
           {...register("password")}
         />
 
-        <div className="password-note">
-          <p>- Mật khẩu phải từ 8 ký tự trở lên.</p>
-          <p>
-            - Kết hợp chữ hoa, chữ thường, chữ số và ký hiệu đặc biệt (@, !,
-            ...)
-          </p>
-        </div>
-
         <PasswordInput
-          id="confirmPassword"
           label="Xác nhận mật khẩu"
           placeholder="Nhập lại mật khẩu"
           error={errors.confirmPassword?.message}
           {...register("confirmPassword")}
         />
 
-        <Button type="submit">Đăng ký</Button>
-
-        <Divider text="Hoặc đăng nhập với" />
-
-        <div className="social-login">
-          <SocialButton provider="google" />
-          <SocialButton provider="outlook" />
-          <SocialButton provider="facebook" />
+        <div className="password-note">
+          <p>Mật khẩu phải có tối thiểu 8 ký tự.</p>
+          <p>Nên bao gồm chữ hoa, chữ thường và số.</p>
         </div>
 
-        <div className="register-login">
+        <FormMessage>{submitError}</FormMessage>
+
+        <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
+          {isSubmitting ? "Đang đăng ký..." : "Đăng ký"}
+        </Button>
+
+        <div className="register-login body-2">
           <span>Đã có tài khoản?</span>
 
           <Link to={ROUTES.LOGIN}>Đăng nhập</Link>
+        </div>
+
+        <Divider text="Hoặc đăng ký với" />
+
+        <div className="social-login">
+          <SocialButton provider="google" />
+
+          <SocialButton provider="outlook" />
+
+          <SocialButton provider="facebook" />
         </div>
       </form>
     </Card>

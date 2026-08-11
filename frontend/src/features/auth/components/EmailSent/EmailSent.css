@@ -11,7 +11,7 @@
 
   border-radius: 50%;
 
-  background: var(--success-100);
+  background: var(--success-200);
 
   color: var(--success-500);
 
@@ -24,6 +24,21 @@
   justify-content: center;
 
   align-items: center;
+}
+
+.gmail-link {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.gmail-link:hover {
+  background: var(--primary-700);
+}
+
+.gmail-link:focus-visible {
+  outline: 3px solid rgba(19, 99, 223, 0.22);
+  outline-offset: 2px;
 }
 
 .email-description {
