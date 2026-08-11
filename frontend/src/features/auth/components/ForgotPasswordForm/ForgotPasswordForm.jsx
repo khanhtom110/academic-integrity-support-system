@@ -11,6 +11,7 @@ import Card from "../../../../components/ui/Card";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
 import FormMessage from "../../../../components/ui/FormMessage";
+import AuthSteps from "../../../../components/ui/AuthSteps";
 import { forgotPassword } from "../../services/authService";
 
 function ForgotPasswordForm() {
@@ -52,6 +53,7 @@ function ForgotPasswordForm() {
         onChange={() => submitError && setSubmitError("")}
         noValidate
       >
+        <AuthSteps currentStep={1} />
         <h2 className="heading-2 forgot-title">Quên mật khẩu</h2>
         <p className="body-2 forgot-description">
           Vui lòng nhập email đã đăng ký tài khoản này để lấy mã xác minh khôi
@@ -59,6 +61,8 @@ function ForgotPasswordForm() {
         </p>
         <Input
           id="email"
+          type="email"
+          autoComplete="email"
           label="Email"
           placeholder="Nhập địa chỉ email"
           error={errors.email?.message}

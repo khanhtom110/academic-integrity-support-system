@@ -1,7 +1,7 @@
 import "./BackToLogin.css";
 
 import { Link } from "react-router-dom";
-import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import { ArrowLeftIcon } from "../Icons";
 
 import { ROUTES } from "../../../constants/routes";
 
@@ -9,7 +9,7 @@ function BackToLogin() {
   return (
     <div className="back-login">
       <Link to={ROUTES.LOGIN}>
-        <ArrowBackRoundedIcon fontSize="small" />
+        <ArrowLeftIcon />
         <span>Quay lại đăng nhập</span>
       </Link>
     </div>

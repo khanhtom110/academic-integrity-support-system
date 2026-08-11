@@ -19,6 +19,9 @@
 }
 
 .forgot-password a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   color: var(--primary-500);
   font-size: 14px;
   transition: var(--transition);
@@ -93,11 +96,17 @@
   transition: var(--transition);
 }
 .register-link {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
   margin-top: 12px;
 }
 
 .register-link a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   color: var(--primary-500);
 }
 .login-register a:hover {

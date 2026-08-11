@@ -37,6 +37,9 @@
 }
 
 .register-login a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   color: var(--primary-500);
   font-weight: 600;
   text-decoration: none;

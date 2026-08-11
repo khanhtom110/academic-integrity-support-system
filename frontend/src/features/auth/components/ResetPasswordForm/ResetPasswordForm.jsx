@@ -10,6 +10,7 @@ import PasswordInput from "../../../../components/ui/PasswordInput";
 import Button from "../../../../components/ui/Button";
 import Card from "../../../../components/ui/Card";
 import FormMessage from "../../../../components/ui/FormMessage";
+import AuthSteps from "../../../../components/ui/AuthSteps";
 
 import { ROUTES } from "../../../../constants/routes";
 import { resetPassword } from "../../services/authService";
@@ -57,7 +58,10 @@ function ResetPasswordForm() {
         confirmPassword,
       });
 
-      navigate(ROUTES.RESET_PASSWORD_SUCCESS, { replace: true });
+      navigate(ROUTES.RESET_PASSWORD_SUCCESS, {
+        replace: true,
+        state: { resetCompleted: true },
+      });
     } catch (error) {
       setSubmitError(
         error.response?.data?.message ||
@@ -73,6 +77,7 @@ function ResetPasswordForm() {
         onChange={() => submitError && setSubmitError("")}
         noValidate
       >
+        <AuthSteps currentStep={3} />
         <h2 className="heading-2 reset-title">Đặt lại mật khẩu</h2>
 
         <PasswordInput
@@ -80,6 +85,7 @@ function ResetPasswordForm() {
           label="Mật khẩu mới"
           placeholder="Nhập mật khẩu mới"
           error={errors.password?.message}
+          autoComplete="new-password"
           {...register("password")}
         />
 
@@ -96,6 +102,7 @@ function ResetPasswordForm() {
           label="Xác nhận mật khẩu"
           placeholder="Nhập lại mật khẩu mới"
           error={errors.confirmPassword?.message}
+          autoComplete="new-password"
           {...register("confirmPassword")}
         />
 

@@ -65,13 +65,8 @@ function OAuthCallback({ provider }) {
 
     hasProcessed.current = true;
 
-    if (provider === "facebook" && window.location.hash) {
-      window.history.replaceState(
-        null,
-        document.title,
-        `${window.location.pathname}${window.location.search}`,
-      );
-    }
+    // Không giữ authorization code/state trong history hoặc referrer.
+    window.history.replaceState(null, document.title, window.location.pathname);
 
     const handleOAuthLogin = async () => {
       if (!consumeOAuthState(provider, returnedState)) {

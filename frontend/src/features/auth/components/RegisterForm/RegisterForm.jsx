@@ -72,6 +72,7 @@ function RegisterForm() {
 
         <Input
           label="Họ và tên"
+          autoComplete="name"
           placeholder="Nhập họ và tên"
           error={errors.fullName?.message}
           {...register("fullName")}
@@ -79,6 +80,8 @@ function RegisterForm() {
 
         <Input
           label="Email"
+          type="email"
+          autoComplete="email"
           placeholder="Nhập địa chỉ email"
           error={errors.email?.message}
           {...register("email")}
@@ -88,6 +91,7 @@ function RegisterForm() {
           label="Mật khẩu"
           placeholder="Nhập mật khẩu"
           error={errors.password?.message}
+          autoComplete="new-password"
           {...register("password")}
         />
 
@@ -95,6 +99,7 @@ function RegisterForm() {
           label="Xác nhận mật khẩu"
           placeholder="Nhập lại mật khẩu"
           error={errors.confirmPassword?.message}
+          autoComplete="new-password"
           {...register("confirmPassword")}
         />
 

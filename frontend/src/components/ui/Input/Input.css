@@ -5,6 +5,7 @@
 .input-group label {
   display: block;
   margin-top: 4px;
+  margin-bottom: 4px;
   color: var(--neutral-900);
 }
 

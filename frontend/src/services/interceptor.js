@@ -13,6 +13,66 @@ import {
   removeRefreshToken,
 } from "./tokenStorage";
 
+let refreshPromise = null;
+let isRedirectingToLogin = false;
+
+const publicApis = new Set([
+  API.AUTH.LOGIN,
+  API.AUTH.REGISTER,
+  API.AUTH.VERIFY_OTP,
+  API.AUTH.RESEND_OTP,
+  API.AUTH.FORGOT_PASSWORD,
+  API.AUTH.VERIFY_RESET_OTP,
+  API.AUTH.RESET_PASSWORD,
+  API.AUTH.REFRESH_TOKEN,
+  API.AUTH.GOOGLE_LOGIN,
+  API.AUTH.FACEBOOK_LOGIN,
+  API.AUTH.OUTLOOK_LOGIN,
+]);
+
+function getRequestPath(url = "") {
+  try {
+    return new URL(url, window.location.origin).pathname;
+  } catch {
+    return url.split("?")[0];
+  }
+}
+
+function clearSessionAndRedirect() {
+  clearAccessToken();
+  removeRefreshToken();
+
+  if (!isRedirectingToLogin && window.location.pathname !== "/login") {
+    isRedirectingToLogin = true;
+    window.location.replace("/login");
+  }
+}
+
+async function refreshAccessToken() {
+  const storedRefreshToken = getRefreshToken();
+
+  if (!storedRefreshToken) {
+    throw new Error("Không tìm thấy refresh token.");
+  }
+
+  const response = await apiClient.post(API.AUTH.REFRESH_TOKEN, {
+    refreshToken: storedRefreshToken,
+  });
+  const auth = response.data?.data;
+
+  if (!auth?.accessToken) {
+    throw new Error("Phản hồi làm mới phiên không hợp lệ.");
+  }
+
+  setAccessToken(auth.accessToken);
+
+  if (auth.refreshToken) {
+    saveRefreshToken(auth.refreshToken);
+  }
+
+  return auth.accessToken;
+}
+
 /**
  * ==========================================================
  * REQUEST INTERCEPTOR
@@ -52,21 +112,7 @@ apiClient.interceptors.response.use(
     /**
      * Không refresh đối với các API public
      */
-    const publicApis = [
-      API.AUTH.LOGIN,
-      API.AUTH.REGISTER,
-      API.AUTH.VERIFY_OTP,
-      API.AUTH.RESEND_OTP,
-      API.AUTH.FORGOT_PASSWORD,
-      API.AUTH.VERIFY_RESET_OTP,
-      API.AUTH.RESET_PASSWORD,
-      API.AUTH.REFRESH_TOKEN,
-      API.AUTH.GOOGLE_LOGIN,
-      API.AUTH.FACEBOOK_LOGIN,
-      API.AUTH.OUTLOOK_LOGIN,
-    ];
-
-    if (publicApis.includes(originalRequest.url)) {
+    if (!originalRequest || publicApis.has(getRequestPath(originalRequest.url))) {
       return Promise.reject(error);
     }
 
@@ -87,45 +133,22 @@ apiClient.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      const refreshToken = getRefreshToken();
-
-      if (!refreshToken) {
-        throw new Error("Refresh Token không tồn tại.");
+      if (!refreshPromise) {
+        refreshPromise = refreshAccessToken().finally(() => {
+          refreshPromise = null;
+        });
       }
 
-      const response = await apiClient.post(API.AUTH.REFRESH_TOKEN, {
-        refreshToken,
-      });
+      const newAccessToken = await refreshPromise;
 
-      const auth = response.data.data;
-
-      /**
-       * Lưu Access Token mới
-       */
-      setAccessToken(auth.accessToken);
-
-      /**
-       * Backend có cấp Refresh Token mới
-       */
-      if (auth.refreshToken) {
-        saveRefreshToken(auth.refreshToken);
-      }
-
-      /**
-       * Gắn Access Token mới
-       */
-      originalRequest.headers.Authorization = `Bearer ${auth.accessToken}`;
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
       /**
        * Gửi lại request cũ
        */
       return apiClient(originalRequest);
     } catch (err) {
-      clearAccessToken();
-
-      removeRefreshToken();
-
-      window.location.href = "/login";
+      clearSessionAndRedirect();
 
       return Promise.reject(err);
     }

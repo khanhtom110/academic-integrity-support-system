@@ -1,21 +1,34 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { ROUTES } from "../constants/routes";
 
-import LoginPage from "../pages/LoginPage";
-import RegisterPage from "../pages/RegisterPage";
-import ForgotPasswordPage from "../pages/ForgotPasswordPage";
-import EmailSentPage from "../pages/EmailSentPage";
-import OTPPage from "../pages/OTPPage";
-import ResetPasswordPage from "../pages/ResetPasswordPage";
-import ResetPasswordSuccessPage from "../pages/ResetPasswordSuccessPage";
-import OAuthCallbackPage from "../pages/OAuthCallbackPage";
-import HomePage from "../pages/HomePage";
 import ProtectedRoute from "./ProtectedRoute";
+
+const LoginPage = lazy(() => import("../pages/LoginPage"));
+const RegisterPage = lazy(() => import("../pages/RegisterPage"));
+const ForgotPasswordPage = lazy(() => import("../pages/ForgotPasswordPage"));
+const EmailSentPage = lazy(() => import("../pages/EmailSentPage"));
+const OTPPage = lazy(() => import("../pages/OTPPage"));
+const ResetPasswordPage = lazy(() => import("../pages/ResetPasswordPage"));
+const ResetPasswordSuccessPage = lazy(() => import("../pages/ResetPasswordSuccessPage"));
+const OAuthCallbackPage = lazy(() => import("../pages/OAuthCallbackPage"));
+const HomePage = lazy(() => import("../pages/HomePage"));
+const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
+
+function RouteLoading() {
+  return (
+    <main className="auth-loading" aria-live="polite" aria-busy="true">
+      <span className="auth-loading-spinner" aria-hidden="true" />
+      <p>Đang tải...</p>
+    </main>
+  );
+}
 
 function AppRoutes() {
   return (
-    <Routes>
+    <Suspense fallback={<RouteLoading />}>
+      <Routes>
       {/* Trang chủ */}
       <Route
         path={ROUTES.HOME}
@@ -66,8 +79,9 @@ function AppRoutes() {
 
       {/* ================= 404 ================= */}
 
-      <Route path="*" element={<h2>404 - Không tìm thấy trang</h2>} />
-    </Routes>
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Suspense>
   );
 }
 

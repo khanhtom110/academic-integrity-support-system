@@ -24,6 +24,9 @@
 }
 
 .resend-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   color: var(--primary-500);
 
   font-weight: 600;

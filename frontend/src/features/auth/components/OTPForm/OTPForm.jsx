@@ -9,6 +9,7 @@ import Button from "../../../../components/ui/Button";
 import FormMessage from "../../../../components/ui/FormMessage";
 import OTPInput from "../../../../components/ui/OTPInput";
 import BackToLogin from "../../../../components/ui/BackToLogin";
+import AuthSteps from "../../../../components/ui/AuthSteps";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   forgotPassword,
@@ -27,6 +28,7 @@ function OTPForm() {
   const isPasswordReset = state?.purpose === "reset-password";
   const [formMessage, setFormMessage] = useState(null);
   const [isResending, setIsResending] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(60);
 
   const {
     control,
@@ -49,6 +51,18 @@ function OTPForm() {
       );
     }
   }, [email, isPasswordReset, navigate]);
+
+  useEffect(() => {
+    if (resendCountdown <= 0) {
+      return undefined;
+    }
+
+    const timer = window.setInterval(() => {
+      setResendCountdown((current) => Math.max(current - 1, 0));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [resendCountdown]);
 
   if (!email) {
     return null;
@@ -86,6 +100,10 @@ function OTPForm() {
   };
 
   const handleResendOtp = async () => {
+    if (isResending || resendCountdown > 0) {
+      return;
+    }
+
     setFormMessage(null);
     setIsResending(true);
 
@@ -97,6 +115,7 @@ function OTPForm() {
         type: "success",
         text: response.message || "Mã OTP mới đã được gửi.",
       });
+      setResendCountdown(60);
     } catch (error) {
       setFormMessage({
         type: "error",
@@ -114,6 +133,7 @@ function OTPForm() {
         onChange={() => formMessage && setFormMessage(null)}
         noValidate
       >
+        {isPasswordReset && <AuthSteps currentStep={2} />}
         <h2 className="heading-2">Nhập mã OTP</h2>
 
         <p className="body-2 otp-description">
@@ -153,10 +173,14 @@ function OTPForm() {
             type="button"
             className="resend-button"
             onClick={handleResendOtp}
-            disabled={isResending}
+            disabled={isResending || resendCountdown > 0}
             aria-busy={isResending}
           >
-            {isResending ? "Đang gửi..." : "Gửi lại"}
+            {isResending
+              ? "Đang gửi..."
+              : resendCountdown > 0
+                ? `Gửi lại sau ${resendCountdown}s`
+                : "Gửi lại"}
           </button>
         </div>
         <BackToLogin />

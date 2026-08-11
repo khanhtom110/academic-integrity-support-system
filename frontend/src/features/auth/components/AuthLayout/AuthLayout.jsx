@@ -1,6 +1,6 @@
 import "./AuthLayout.css";
 
-import logo from "../../../../assets/images/logo.svg";
+import logo from "../../../../assets/images/logo.webp";
 
 function AuthLayout({ children }) {
   return (

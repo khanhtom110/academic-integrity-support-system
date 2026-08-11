@@ -68,6 +68,8 @@ function LoginForm() {
 
         <Input
           label="Email"
+          type="email"
+          autoComplete="email"
           placeholder="Nhập địa chỉ email"
           error={errors.email?.message}
           {...register("email")}
@@ -77,6 +79,7 @@ function LoginForm() {
           label="Mật khẩu"
           placeholder="Nhập mật khẩu"
           error={errors.password?.message}
+          autoComplete="current-password"
           {...register("password")}
         />
 
