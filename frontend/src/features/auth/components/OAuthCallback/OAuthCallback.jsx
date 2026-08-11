@@ -15,35 +15,13 @@ import {
   loginWithGoogle,
   loginWithOutlook,
 } from "../../services/authService";
+import { getVietnameseAuthError } from "../../utils/authMessages";
 
 const loginByProvider = {
   google: loginWithGoogle,
   facebook: loginWithFacebook,
   outlook: loginWithOutlook,
 };
-
-const tokenExchangeErrors = [
-  "Cannot convert Authorization Code to Token",
-  "Cannot convert Oath code",
-];
-
-function getOAuthErrorMessage(error) {
-  const backendMessage = error.response?.data?.message;
-  const appOrigin = getAppOrigin();
-
-  if (tokenExchangeErrors.includes(backendMessage)) {
-    return (
-      "Mã đăng nhập không thể đổi thành token. Vui lòng bắt đầu lại từ " +
-      `${appOrigin} và không sử dụng lại URL callback cũ.`
-    );
-  }
-
-  return (
-    backendMessage ||
-    error.message ||
-    "Đăng nhập bằng tài khoản bên thứ ba thất bại."
-  );
-}
 
 function OAuthCallback({ provider }) {
   const navigate = useNavigate();
@@ -55,7 +33,6 @@ function OAuthCallback({ provider }) {
   const code = searchParams.get("code");
   const returnedState = searchParams.get("state");
   const providerError = searchParams.get("error");
-  const providerErrorDescription = searchParams.get("error_description");
   const appOrigin = getAppOrigin();
 
   useEffect(() => {
@@ -81,7 +58,7 @@ function OAuthCallback({ provider }) {
         setErrorMessage(
           providerError === "access_denied"
             ? "Bạn đã hủy hoặc từ chối cấp quyền đăng nhập."
-            : providerErrorDescription || "Nhà cung cấp OAuth đã từ chối đăng nhập.",
+            : "Nhà cung cấp OAuth đã từ chối đăng nhập. Vui lòng thử lại.",
         );
         return;
       }
@@ -108,7 +85,9 @@ function OAuthCallback({ provider }) {
         login(response.data);
         navigate(ROUTES.HOME, { replace: true });
       } catch (error) {
-        setErrorMessage(getOAuthErrorMessage(error));
+        setErrorMessage(
+          getVietnameseAuthError(error, "oauth", { appOrigin }),
+        );
       }
     };
 
@@ -120,7 +99,6 @@ function OAuthCallback({ provider }) {
     navigate,
     provider,
     providerError,
-    providerErrorDescription,
     returnedState,
   ]);
 

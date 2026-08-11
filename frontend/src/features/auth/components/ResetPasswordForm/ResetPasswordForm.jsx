@@ -15,6 +15,7 @@ import AuthSteps from "../../../../components/ui/AuthSteps";
 import { ROUTES } from "../../../../constants/routes";
 import { resetPassword } from "../../services/authService";
 import { resetPasswordSchema } from "../../validation/resetPasswordSchema";
+import { getVietnameseAuthError } from "../../utils/authMessages";
 
 function ResetPasswordForm() {
   const navigate = useNavigate();
@@ -63,10 +64,7 @@ function ResetPasswordForm() {
         state: { resetCompleted: true },
       });
     } catch (error) {
-      setSubmitError(
-        error.response?.data?.message ||
-          "Không thể đặt lại mật khẩu. Vui lòng thử lại.",
-      );
+      setSubmitError(getVietnameseAuthError(error, "resetPassword"));
     }
   };
 

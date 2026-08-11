@@ -16,6 +16,7 @@ import SocialButton from "../../../../components/ui/SocialButton";
 
 import { loginSchema } from "../../validation/loginSchema";
 import { login as loginService } from "../../services/authService";
+import { getVietnameseAuthError } from "../../utils/authMessages";
 
 import { ROUTES } from "../../../../constants/routes";
 import { useAuth } from "../../../../hooks/useAuth";
@@ -50,10 +51,7 @@ function LoginForm() {
 
       navigate(ROUTES.HOME);
     } catch (error) {
-      setSubmitError(
-        error.response?.data?.message ||
-          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
-      );
+      setSubmitError(getVietnameseAuthError(error, "login"));
     }
   };
 

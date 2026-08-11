@@ -16,6 +16,7 @@ import SocialButton from "../../../../components/ui/SocialButton";
 
 import { registerSchema } from "../../validation/registerSchema";
 import { register as registerService } from "../../services/authService";
+import { getVietnameseAuthError } from "../../utils/authMessages";
 
 import { ROUTES } from "../../../../constants/routes";
 
@@ -54,10 +55,7 @@ function RegisterForm() {
         },
       });
     } catch (error) {
-      setSubmitError(
-        error.response?.data?.message ||
-          "Đăng ký thất bại. Vui lòng thử lại.",
-      );
+      setSubmitError(getVietnameseAuthError(error, "register"));
     }
   };
 

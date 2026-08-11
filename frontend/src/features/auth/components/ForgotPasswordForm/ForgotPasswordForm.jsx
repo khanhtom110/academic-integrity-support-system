@@ -13,6 +13,7 @@ import Button from "../../../../components/ui/Button";
 import FormMessage from "../../../../components/ui/FormMessage";
 import AuthSteps from "../../../../components/ui/AuthSteps";
 import { forgotPassword } from "../../services/authService";
+import { getVietnameseAuthError } from "../../utils/authMessages";
 
 function ForgotPasswordForm() {
   const navigate = useNavigate();
@@ -39,10 +40,7 @@ function ForgotPasswordForm() {
         state: { email, purpose: "reset-password" },
       });
     } catch (error) {
-      setSubmitError(
-        error.response?.data?.message ||
-          "Không thể gửi mã OTP. Vui lòng thử lại.",
-      );
+      setSubmitError(getVietnameseAuthError(error, "forgotPassword"));
     }
   };
 

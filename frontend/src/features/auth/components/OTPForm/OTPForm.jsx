@@ -18,6 +18,10 @@ import {
   verifyResetOtp,
 } from "../../services/authService";
 import { otpSchema } from "../../validation/otpSchema";
+import {
+  getVietnameseAuthError,
+  getVietnameseSuccessMessage,
+} from "../../utils/authMessages";
 
 import { ROUTES } from "../../../../constants/routes";
 
@@ -94,7 +98,7 @@ function OTPForm() {
     } catch (error) {
       setFormMessage({
         type: "error",
-        text: error.response?.data?.message || "Xác thực OTP thất bại.",
+        text: getVietnameseAuthError(error, "verifyOtp"),
       });
     }
   };
@@ -113,13 +117,16 @@ function OTPForm() {
 
       setFormMessage({
         type: "success",
-        text: response.message || "Mã OTP mới đã được gửi.",
+        text: getVietnameseSuccessMessage(
+          response.message,
+          "Mã OTP mới đã được gửi.",
+        ),
       });
       setResendCountdown(60);
     } catch (error) {
       setFormMessage({
         type: "error",
-        text: error.response?.data?.message || "Không thể gửi lại OTP.",
+        text: getVietnameseAuthError(error, "resendOtp"),
       });
     } finally {
       setIsResending(false);

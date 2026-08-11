@@ -29,9 +29,11 @@ function SocialButton({ provider }) {
       setLoginError("");
       setIsRedirecting(true);
       window.location.assign(createOAuthAuthorizationUrl(provider));
-    } catch (error) {
+    } catch {
       setIsRedirecting(false);
-      setLoginError(error.message);
+      setLoginError(
+        `Không thể bắt đầu đăng nhập bằng ${labels[provider]}. Vui lòng kiểm tra cấu hình OAuth.`,
+      );
     }
   };
 
