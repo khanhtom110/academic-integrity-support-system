@@ -85,10 +85,10 @@ public class AuthService {
     /**
      * Tim user tuong ung voi tai khoan OAuth theo thu tu uu tien:
      * <ol>
-     * <li>Tra theo (provider, providerUserId): ma dinh danh nay do provider cap va
-     * khong bao gio doi, ke ca khi user doi email ben phia Google/Facebook</li>
-     * <li>Chua lien ket thi tra theo email de gan them provider vao tai khoan da co
-     * (vi du user dang ky bang email roi sau do dang nhap bang Google)</li>
+     * <li>Tra theo (provider, providerUserId): ma dinh danh nay do provider cap va khong bao gio doi, ke ca khi user
+     * doi email ben phia Google/Facebook</li>
+     * <li>Chua lien ket thi tra theo email de gan them provider vao tai khoan da co (vi du user dang ky bang email roi
+     * sau do dang nhap bang Google)</li>
      * <li>Khong tim thay gi thi tao user moi</li>
      * </ol>
      */

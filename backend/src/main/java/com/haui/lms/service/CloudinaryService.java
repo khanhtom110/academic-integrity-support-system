@@ -7,9 +7,8 @@ public interface CloudinaryService {
     /**
      * Upload anh len Cloudinary va tra ve URL cua anh.
      * <p>
-     * publicId duoc dat co dinh theo doi tuong (vi du theo userId) nen lan upload
-     * sau se ghi de len anh cu, khong sinh rac. URL tra ve co kem so version nen
-     * trinh duyet tu dong nhan anh moi, khong bi cache anh cu.
+     * publicId duoc dat co dinh theo doi tuong (vi du theo userId) nen lan upload sau se ghi de len anh cu, khong sinh
+     * rac. URL tra ve co kem so version nen trinh duyet tu dong nhan anh moi, khong bi cache anh cu.
      *
      * @param file
      *            file anh nguoi dung gui len
@@ -19,6 +18,7 @@ public interface CloudinaryService {
      *            dinh danh cua anh trong folder do
      * @param dimension
      *            anh se duoc resize ve kich thuoc vuong nay truoc khi luu
+     *
      * @return URL https cua anh vua upload
      */
     String uploadImage(MultipartFile file, String folder, String publicId, int dimension);

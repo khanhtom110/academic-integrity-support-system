@@ -8,7 +8,5 @@ import jakarta.validation.constraints.Size;
 
 // Email khong nam trong request: email la dinh danh tai khoan nen khong cho doi
 public record UpdateProfileRequest(
-        @Schema(description = "Họ và tên hiển thị") @NotBlank(message = ErrorMessage.NOT_BLANK_FIELD)
-        @Size(min = CommonConstant.FULLNAME_MIN_LENGTH, max = CommonConstant.FULLNAME_LENGTH, message = ErrorMessage.INVALID_FORMAT_FULLNAME)
-        String fullName) {
+        @Schema(description = "Họ và tên hiển thị") @NotBlank(message = ErrorMessage.NOT_BLANK_FIELD) @Size(min = CommonConstant.FULLNAME_MIN_LENGTH, max = CommonConstant.FULLNAME_LENGTH, message = ErrorMessage.INVALID_FORMAT_FULLNAME) String fullName) {
 }

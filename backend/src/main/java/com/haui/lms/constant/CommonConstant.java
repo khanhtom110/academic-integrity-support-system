@@ -26,8 +26,8 @@ public final class CommonConstant {
     }
 
     /**
-     * Cau hinh dung chung cho moi chuc nang upload anh len Cloudinary. Module moi
-     * chi can them mot hang so folder rieng o day.
+     * Cau hinh dung chung cho moi chuc nang upload anh len Cloudinary. Module moi chi can them mot hang so folder rieng
+     * o day.
      */
     public static final class Upload {
         private Upload() {
