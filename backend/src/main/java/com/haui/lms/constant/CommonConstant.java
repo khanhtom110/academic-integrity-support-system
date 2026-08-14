@@ -1,5 +1,7 @@
 package com.haui.lms.constant;
 
+import java.util.Set;
+
 public final class CommonConstant {
     public static final int USERNAME_LENGTH = 120;
     public static final int PASSWORD_LENGTH = 120;
@@ -21,6 +23,26 @@ public final class CommonConstant {
     public static final class User {
         public static final int AVATAR_LENGTH = 500;
         public static final int HOBBY_LENGTH = 300;
+    }
+
+    /**
+     * Cau hinh dung chung cho moi chuc nang upload anh len Cloudinary. Module moi
+     * chi can them mot hang so folder rieng o day.
+     */
+    public static final class Upload {
+        private Upload() {
+        }
+
+        // 5MB: anh chup tu dien thoai thuong 2-5MB, dat thap hon se chan oan
+        public static final long MAX_IMAGE_SIZE = 5L * 1024 * 1024;
+
+        public static final Set<String> ALLOWED_IMAGE_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
+
+        // Anh duoc resize ve kich thuoc nay ngay khi upload de tiet kiem dung luong
+        public static final int AVATAR_DIMENSION = 500;
+
+        // Thu muc tren Cloudinary, tach theo tung module cho de quan ly
+        public static final String AVATAR_FOLDER = "aiss/avatars";
     }
 
 }

@@ -45,6 +45,11 @@ public class User extends BaseEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
+    // URL anh dai dien: hoac tu Cloudinary (user tu upload),
+    // hoac tu Google/Facebook khi dang nhap OAuth lan dau
+    @Column(length = CommonConstant.User.AVATAR_LENGTH)
+    private String avatar;
+
     // Thoi diem doi mat khau gan nhat, dung de vo hieu hoa token cu phat truoc do
     @Column(name = "password_changed_at")
     private Instant passwordChangedAt;
