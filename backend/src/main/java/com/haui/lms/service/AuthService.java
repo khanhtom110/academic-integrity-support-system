@@ -22,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,17 +44,8 @@ public class AuthService {
             throw new AppException(400, ErrorMessage.Auth.GOOGLE_EMAIL_MISSING);
         }
 
-        // Tim User co hay chua, chua thi tao moi
-        User user = userRepository.findByEmail(googleProfile.email())
-                .orElseGet(() -> createNewOAuthUser(googleProfile.email(), googleProfile.name(), AuthProvider.GOOGLE,
-                        googleProfile.sub()));
-
-        // Kiem tra da lien ket hay chua
-        boolean hasOAuthLink = userOAuthAccountRepository.existsByProviderAndProviderUserId(AuthProvider.GOOGLE,
-                googleProfile.sub());
-        if (!hasOAuthLink) {
-            linkOAuthAccountToUser(user, AuthProvider.GOOGLE, googleProfile.sub());
-        }
+        User user = resolveOAuthUser(AuthProvider.GOOGLE, googleProfile.sub(), googleProfile.email(),
+                googleProfile.name(), googleProfile.picture());
 
         return generateAuthResponse(user);
     }
@@ -66,17 +59,8 @@ public class AuthService {
             throw new AppException(400, ErrorMessage.Auth.FACEBOOK_EMAIL_MISSING);
         }
 
-        // Tim User, chua co thi tao moi
-        User user = userRepository.findByEmail(fbProfile.email()).orElseGet(
-                () -> createNewOAuthUser(fbProfile.email(), fbProfile.name(), AuthProvider.FACEBOOK, fbProfile.id()));
-
-        // Kiem tra user da lien ket hay chua
-        boolean hasOAuthLink = userOAuthAccountRepository.existsByProviderAndProviderUserId(AuthProvider.FACEBOOK,
-                fbProfile.id());
-
-        if (!hasOAuthLink) {
-            linkOAuthAccountToUser(user, AuthProvider.FACEBOOK, fbProfile.id());
-        }
+        User user = resolveOAuthUser(AuthProvider.FACEBOOK, fbProfile.id(), fbProfile.email(), fbProfile.name(),
+                fbProfile.getAvatarUrl());
 
         return generateAuthResponse(user);
     }
@@ -90,24 +74,48 @@ public class AuthService {
             throw new AppException(400, ErrorMessage.Auth.OUTLOOK_EMAIL_MISSING);
         }
 
-        // Tim User, chua co thi tao moi
-        User user = userRepository.findByEmail(outlookProfile.getEmail())
-                .orElseGet(() -> createNewOAuthUser(outlookProfile.getEmail(), outlookProfile.displayName(),
-                        AuthProvider.OUTLOOK, outlookProfile.id()));
-
-        // Kiem tra user da lien ket hay chua
-        boolean hasOAuthLink = userOAuthAccountRepository.existsByProviderAndProviderUserId(AuthProvider.OUTLOOK,
-                outlookProfile.id());
-
-        if (!hasOAuthLink) {
-            linkOAuthAccountToUser(user, AuthProvider.OUTLOOK, outlookProfile.id());
-        }
+        // Microsoft Graph /me khong tra ve URL anh dai dien (phai goi rieng /me/photo
+        // va nhan ve du lieu nhi phan) nen de null, user tu upload sau
+        User user = resolveOAuthUser(AuthProvider.OUTLOOK, outlookProfile.id(), outlookProfile.getEmail(),
+                outlookProfile.displayName(), null);
 
         return generateAuthResponse(user);
     }
 
-    private User createNewOAuthUser(String email, String fullName, AuthProvider provider, String providerUserId) {
-        User newUser = User.builder().email(email).fullName(fullName).role(Role.USER).isActive(true).build();
+    /**
+     * Tim user tuong ung voi tai khoan OAuth theo thu tu uu tien:
+     * <ol>
+     * <li>Tra theo (provider, providerUserId): ma dinh danh nay do provider cap va khong bao gio doi, ke ca khi user
+     * doi email ben phia Google/Facebook</li>
+     * <li>Chua lien ket thi tra theo email de gan them provider vao tai khoan da co (vi du user dang ky bang email roi
+     * sau do dang nhap bang Google)</li>
+     * <li>Khong tim thay gi thi tao user moi</li>
+     * </ol>
+     */
+    private User resolveOAuthUser(AuthProvider provider, String providerUserId, String email, String fullName,
+            String avatarUrl) {
+        Optional<UserOAuthAccount> linkedAccount = userOAuthAccountRepository.findByProviderAndProviderUserId(provider,
+                providerUserId);
+        if (linkedAccount.isPresent()) {
+            return linkedAccount.get().getUser();
+        }
+
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            linkOAuthAccountToUser(user, provider, providerUserId);
+            return user;
+        }
+
+        return createNewOAuthUser(email, fullName, provider, providerUserId, avatarUrl);
+    }
+
+    private User createNewOAuthUser(String email, String fullName, AuthProvider provider, String providerUserId,
+            String avatarUrl) {
+        // Chi lay avatar cua provider lam anh mac dinh o lan tao tai khoan dau tien.
+        // Nhung lan dang nhap sau khong ghi de, de ton trong anh user tu chon.
+        User newUser = User.builder().email(email).fullName(fullName).avatar(avatarUrl).role(Role.USER).isActive(true)
+                .build();
 
         User savedUser = userRepository.save(newUser);
 

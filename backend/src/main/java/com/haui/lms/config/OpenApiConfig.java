@@ -10,8 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@OpenAPIDefinition(servers = { @Server(url = "http://localhost:8080", description = "Local Server"),
-        @Server(url = "https://lms-haui.fit", description = "Production Server") })
+@OpenAPIDefinition(servers = { @Server(url = "/", description = "Current Server") })
 public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {

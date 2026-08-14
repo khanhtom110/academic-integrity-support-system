@@ -62,12 +62,24 @@ public final class ErrorMessage {
 
     }
 
+    // Upload Errors
+    public static final class Upload {
+        private Upload() {
+        }
+
+        public static final String FILE_EMPTY = "The uploaded file is empty. Please choose an image.";
+        public static final String FILE_TOO_LARGE = "The image is too large. Maximum allowed size is 5MB.";
+        public static final String INVALID_IMAGE_TYPE = "Unsupported image format. Only JPEG, PNG and WebP are allowed.";
+        public static final String DELETE_IMAGE_FAIL = "Failed to delete the image. Please try again later.";
+    }
+
     // User Errors
     public static final class User {
         private User() {
         }
 
         public static final String USER_NOT_EXISTED = "User does not exist.";
+        public static final String AVATAR_NOT_EXISTED = "You do not have an avatar to remove.";
         public static final String USERNAME_EXISTED = "Username already exists. Please choose a different one.";
         public static final String EMAIL_EXISTED = "Email already exists. Please use another email or log in.";
         public static final String EMAIL_NOT_EXISTED = "Email does not exists.";
