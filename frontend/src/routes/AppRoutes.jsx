@@ -53,11 +53,6 @@ function AppRoutes() {
       />
 
       <Route
-        path={ROUTES.OAUTH_FACEBOOK_CALLBACK}
-        element={<OAuthCallbackPage provider="facebook" />}
-      />
-
-      <Route
         path={ROUTES.OAUTH_OUTLOOK_CALLBACK}
         element={<OAuthCallbackPage provider="outlook" />}
       />

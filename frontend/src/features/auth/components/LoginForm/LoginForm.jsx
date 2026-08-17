@@ -103,8 +103,6 @@ function LoginForm() {
           <SocialButton provider="google" />
 
           <SocialButton provider="outlook" />
-
-          <SocialButton provider="facebook" />
         </div>
       </form>
     </Card>

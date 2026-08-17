@@ -84,8 +84,5 @@ const exchangeOAuthCode = async (endpoint, code) => {
 export const loginWithGoogle = (code) =>
   exchangeOAuthCode(API.AUTH.GOOGLE_LOGIN, code);
 
-export const loginWithFacebook = (code) =>
-  exchangeOAuthCode(API.AUTH.FACEBOOK_LOGIN, code);
-
 export const loginWithOutlook = (code) =>
   exchangeOAuthCode(API.AUTH.OUTLOOK_LOGIN, code);

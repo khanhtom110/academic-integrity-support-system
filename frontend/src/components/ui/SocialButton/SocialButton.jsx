@@ -1,28 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./SocialButton.css";
 
 import googleIcon from "../../../assets/icons/google.svg";
 import outlookIcon from "../../../assets/icons/Outlook.svg";
-import facebookIcon from "../../../assets/icons/Facebook.svg";
 
 import { createOAuthAuthorizationUrl } from "../../../constants/oauthConfig";
 
 const icons = {
   google: googleIcon,
   outlook: outlookIcon,
-  facebook: facebookIcon,
 };
 
 const labels = {
   google: "Google",
   outlook: "Outlook",
-  facebook: "Facebook",
 };
 
 function SocialButton({ provider }) {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [loginError, setLoginError] = useState("");
+
+  useEffect(() => {
+    const resetRedirecting = () => setIsRedirecting(false);
+    const resetWhenVisible = () => {
+      if (document.visibilityState === "visible") {
+        resetRedirecting();
+      }
+    };
+
+    window.addEventListener("pageshow", resetRedirecting);
+    window.addEventListener("focus", resetRedirecting);
+    document.addEventListener("visibilitychange", resetWhenVisible);
+
+    return () => {
+      window.removeEventListener("pageshow", resetRedirecting);
+      window.removeEventListener("focus", resetRedirecting);
+      document.removeEventListener("visibilitychange", resetWhenVisible);
+    };
+  }, []);
 
   const handleLogin = () => {
     try {

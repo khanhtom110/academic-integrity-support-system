@@ -2,7 +2,6 @@ export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
   OAUTH_GOOGLE_CALLBACK: "/oauth2/callback/google",
-  OAUTH_FACEBOOK_CALLBACK: "/oauth2/callback/facebook",
   OAUTH_OUTLOOK_CALLBACK: "/oauth2/callback/outlook",
   // REGISTER
   REGISTER: "/register",

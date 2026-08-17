@@ -3,7 +3,6 @@ const DEVELOPMENT_ORIGIN = "http://localhost:5173";
 const DEFAULT_CLIENT_IDS = {
   google:
     "930372998229-hvum0n94hf69l7u7po0vc5rncage449s.apps.googleusercontent.com",
-  facebook: "2450540598706287",
   outlook: "f2fbd8d6-479a-4444-ae64-d40b9ebce928",
 };
 
@@ -24,13 +23,6 @@ const providers = {
       import.meta.env.VITE_GOOGLE_CLIENT_ID || DEFAULT_CLIENT_IDS.google,
     callbackPath: "/oauth2/callback/google",
     scope: "email profile",
-  },
-  facebook: {
-    authorizationUrl: "https://www.facebook.com/v19.0/dialog/oauth",
-    clientId:
-      import.meta.env.VITE_FACEBOOK_CLIENT_ID || DEFAULT_CLIENT_IDS.facebook,
-    callbackPath: "/oauth2/callback/facebook",
-    scope: "email,public_profile",
   },
   outlook: {
     authorizationUrl:

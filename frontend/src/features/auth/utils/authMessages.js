@@ -112,17 +112,6 @@ export function getVietnameseAuthError(error, context, options = {}) {
 
   if (
     includesAny(message, [
-      "facebook account must have email",
-      "facebook account does not have email",
-      "email is required",
-      "email permission",
-    ])
-  ) {
-    return "Tài khoản Facebook phải có email và cho phép ứng dụng truy cập email.";
-  }
-
-  if (
-    includesAny(message, [
       "refresh token expired",
       "session expired",
       "token has expired",

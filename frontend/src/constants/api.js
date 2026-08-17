@@ -11,9 +11,8 @@ export const API = {
     RESET_PASSWORD: "/api/v1/auth/reset-password",
     // REFRESH_TOKEN
     REFRESH_TOKEN: "/api/v1/auth/refresh",
-    // LOGIN: GOOGLE FACEBOOK OUTLOOK
+    // LOGIN: GOOGLE OUTLOOK
     GOOGLE_LOGIN: "/api/v1/auth/google",
-    FACEBOOK_LOGIN: "/api/v1/auth/facebook",
     OUTLOOK_LOGIN: "/api/v1/auth/outlook",
   },
 

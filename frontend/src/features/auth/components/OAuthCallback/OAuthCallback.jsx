@@ -11,7 +11,6 @@ import {
 } from "../../../../constants/oauthConfig";
 import { useAuth } from "../../../../hooks/useAuth";
 import {
-  loginWithFacebook,
   loginWithGoogle,
   loginWithOutlook,
 } from "../../services/authService";
@@ -19,7 +18,6 @@ import { getVietnameseAuthError } from "../../utils/authMessages";
 
 const loginByProvider = {
   google: loginWithGoogle,
-  facebook: loginWithFacebook,
   outlook: loginWithOutlook,
 };
 
