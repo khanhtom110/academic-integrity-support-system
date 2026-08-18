@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import "./NotFoundPage.css";
+import "../styles/pages/NotFoundPage.css";
 
 import AuthLayout from "../features/auth/components/AuthLayout";
 import Card from "../components/ui/Card";

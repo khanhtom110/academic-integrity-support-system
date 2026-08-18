@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import "./HomePage.css";
+import "../styles/pages/HomePage.css";
 
 import AuthLayout from "../features/auth/components/AuthLayout";
 import Button from "../components/ui/Button";
