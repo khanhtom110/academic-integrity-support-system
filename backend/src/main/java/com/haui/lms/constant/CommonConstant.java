@@ -20,6 +20,24 @@ public final class CommonConstant {
 
     public static final String GOOGLE_PROVIDER = "google";
 
+    /**
+     * Cau hinh cho phan tra cuu tap chi qua OpenAlex.
+     */
+    public static final class Journal {
+        private Journal() {
+        }
+
+        // Ky tu cuoi cua ISSN co the la X (vi du 0044-586X) nen khong dung \\d{4}-\\d{4}
+        public static final String ISSN_REGEX = "^\\d{4}-\\d{3}[\\dXx]$";
+
+        public static final int SEARCH_MIN_LENGTH = 2;
+        public static final int SEARCH_MAX_LENGTH = 200;
+
+        // Prefix key tren Redis
+        public static final String CACHE_DETAIL_PREFIX = "JOURNAL_DETAIL:";
+        public static final String CACHE_SEARCH_PREFIX = "JOURNAL_SEARCH:";
+    }
+
     public static final class User {
         public static final int AVATAR_LENGTH = 500;
         public static final int HOBBY_LENGTH = 300;

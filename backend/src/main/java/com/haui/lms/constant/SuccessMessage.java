@@ -11,6 +11,11 @@ public class SuccessMessage {
         public static final String VERIFY_OTP_SUCCESS = "OTP verified successfully";
     }
 
+    public static class Journal {
+        public static final String SEARCH_SUCCESS = "Journals retrieved successfully";
+        public static final String GET_DETAIL_SUCCESS = "Journal detail retrieved successfully";
+    }
+
     public static class User {
         public static final String GET_PROFILE_SUCCESS = "Profile retrieved successfully";
         public static final String UPDATE_PROFILE_SUCCESS = "Profile updated successfully";
