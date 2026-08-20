@@ -16,5 +16,6 @@ public class SuccessMessage {
         public static final String UPDATE_PROFILE_SUCCESS = "Profile updated successfully";
         public static final String UPDATE_AVATAR_SUCCESS = "Avatar updated successfully";
         public static final String DELETE_AVATAR_SUCCESS = "Avatar removed successfully";
+        public static final String CHANGE_PASSWORD_SUCCESS = "Password changed successfully";
     }
 }
