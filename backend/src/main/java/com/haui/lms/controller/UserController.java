@@ -5,6 +5,7 @@ import com.haui.lms.constant.ApiPath;
 import com.haui.lms.constant.SuccessMessage;
 import com.haui.lms.constant.UrlConstant;
 import com.haui.lms.dto.request.UpdateProfileRequest;
+import com.haui.lms.dto.request.ChangePasswordRequest;
 import com.haui.lms.dto.response.UserProfileResponse;
 import com.haui.lms.security.CustomUserDetails;
 import com.haui.lms.service.UserService;
@@ -60,5 +61,13 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails principal) {
         UserProfileResponse response = userService.deleteAvatar(principal.getUsername());
         return ResponseEntity.ok(ApiResponse.ok(SuccessMessage.User.DELETE_AVATAR_SUCCESS, response));
+    }
+
+    @Operation(summary = "Đổi mật khẩu", description = "Yêu cầu nhập đúng mật khẩu hiện tại. Sau khi đổi thành công, mọi access token cũ sẽ bị vô hiệu hoá")
+    @PostMapping(UrlConstant.User.CHANGE_PASSWORD)
+    public ResponseEntity<ApiResponse<Void>> changePassword(@AuthenticationPrincipal CustomUserDetails principal,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(principal.getUsername(), request);
+        return ResponseEntity.ok(ApiResponse.ok(SuccessMessage.User.CHANGE_PASSWORD_SUCCESS, null));
     }
 }

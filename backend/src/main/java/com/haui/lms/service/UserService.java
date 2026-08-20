@@ -3,6 +3,7 @@ package com.haui.lms.service;
 import com.haui.lms.dto.request.UpdateProfileRequest;
 import com.haui.lms.dto.response.UserProfileResponse;
 import org.springframework.web.multipart.MultipartFile;
+import com.haui.lms.dto.request.ChangePasswordRequest;
 
 /**
  * Cac ham deu nhan email lay tu JWT (khong phai tu client gui len) nen user chi thao tac duoc tren ho so cua chinh
@@ -17,4 +18,7 @@ public interface UserService {
     UserProfileResponse updateAvatar(String email, MultipartFile file);
 
     UserProfileResponse deleteAvatar(String email);
+
+    void changePassword(String email, ChangePasswordRequest request);
+
 }

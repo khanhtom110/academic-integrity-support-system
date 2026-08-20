@@ -2,6 +2,7 @@ package com.haui.lms.service.impl;
 
 import com.haui.lms.constant.CommonConstant;
 import com.haui.lms.constant.ErrorMessage;
+import com.haui.lms.dto.request.ChangePasswordRequest;
 import com.haui.lms.dto.request.UpdateProfileRequest;
 import com.haui.lms.dto.response.UserProfileResponse;
 import com.haui.lms.entity.User;
@@ -11,9 +12,12 @@ import com.haui.lms.service.CloudinaryService;
 import com.haui.lms.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserProfileResponse getProfile(String email) {
@@ -73,8 +78,31 @@ public class UserServiceImpl implements UserService {
         return UserProfileResponse.from(userRepository.save(user));
     }
 
+    @Override
+    @Transactional
+    public void changePassword(String email, ChangePasswordRequest request) {
+        User user = findByEmail(email);
+
+        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
+            throw new AppException(400, ErrorMessage.Auth.INVALID_PASSWORD);
+        }
+
+        if (!request.newPassword().equals(request.confirmPassword())) {
+            throw new AppException(400, ErrorMessage.PASSWORD_MISMATCH);
+        }
+
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            throw new AppException(400, ErrorMessage.Auth.PASSWORD_SAME_AS_OLD);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        user.setPasswordChangedAt(Instant.now());
+        userRepository.save(user);
+    }
+
     private User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(404, ErrorMessage.User.USER_NOT_EXISTED));
     }
+
 }
