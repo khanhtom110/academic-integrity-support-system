@@ -62,6 +62,17 @@ public final class ErrorMessage {
 
     }
 
+    // Journal Errors
+    public static final class Journal {
+        private Journal() {
+        }
+
+        public static final String INVALID_ISSN_FORMAT = "Invalid ISSN format. Expected 8 characters like 0092-8674.";
+        public static final String JOURNAL_NOT_FOUND = "This journal was not found in the OpenAlex database. It does not necessarily mean the journal does not exist or is untrustworthy: many local journals are not indexed internationally.";
+        public static final String OPENALEX_UNAVAILABLE = "Cannot reach the OpenAlex data source at the moment. Please try again later.";
+        public static final String SEARCH_QUERY_TOO_SHORT = "Please enter at least 2 characters to search.";
+    }
+
     // Upload Errors
     public static final class Upload {
         private Upload() {

@@ -45,6 +45,16 @@ public class UrlConstant {
         }
     }
 
+    public static class Journal {
+        private static final String PREFIX = "/journals";
+
+        public static final String SEARCH = PREFIX + "/search";
+        public static final String DETAIL = PREFIX + "/{issn}";
+
+        private Journal() {
+        }
+    }
+
     public static class Admin {
         private static final String PREFIX = "/admin";
 
