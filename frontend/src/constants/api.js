@@ -18,5 +18,8 @@ export const API = {
 
   USER: {
     LOGOUT: "/api/v1/user/logout",
+    PROFILE: "/api/v1/user/profile",
+    AVATAR: "/api/v1/user/avatar",
+    CHANGE_PASSWORD: "/api/v1/user/change-password",
   },
 };

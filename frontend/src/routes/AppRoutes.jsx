@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import { ROUTES } from "../constants/routes";
 
 import ProtectedRoute from "./ProtectedRoute";
+import AppLayout from "../components/layout/AppLayout/AppLayout";
 
 const LoginPage = lazy(() => import("../pages/LoginPage"));
 const RegisterPage = lazy(() => import("../pages/RegisterPage"));
@@ -14,6 +15,8 @@ const ResetPasswordPage = lazy(() => import("../pages/ResetPasswordPage"));
 const ResetPasswordSuccessPage = lazy(() => import("../pages/ResetPasswordSuccessPage"));
 const OAuthCallbackPage = lazy(() => import("../pages/OAuthCallbackPage"));
 const HomePage = lazy(() => import("../pages/HomePage"));
+const ProfilePage = lazy(() => import("../pages/ProfilePage"));
+const ChangePasswordPage = lazy(() => import("../pages/ChangePasswordPage"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
 function RouteLoading() {
@@ -31,13 +34,16 @@ function AppRoutes() {
       <Routes>
       {/* Trang chủ */}
       <Route
-        path={ROUTES.HOME}
         element={
           <ProtectedRoute>
-            <HomePage />
+            <AppLayout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route path={ROUTES.HOME} element={<HomePage />} />
+        <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+        <Route path={ROUTES.CHANGE_PASSWORD} element={<ChangePasswordPage />} />
+      </Route>
 
       {/* ================= Authentication ================= */}
 

@@ -1,5 +1,7 @@
 export const ROUTES = {
   HOME: "/",
+  PROFILE: "/profile",
+  CHANGE_PASSWORD: "/change-password",
   LOGIN: "/login",
   OAUTH_GOOGLE_CALLBACK: "/oauth2/callback/google",
   OAUTH_OUTLOOK_CALLBACK: "/oauth2/callback/outlook",

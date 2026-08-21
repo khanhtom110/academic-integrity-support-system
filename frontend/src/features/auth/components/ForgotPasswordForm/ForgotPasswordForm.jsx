@@ -3,7 +3,7 @@ import "./ForgotPasswordForm.css";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../../constants/routes";
 import { forgotPasswordSchema } from "../../validation/forgotPasswordSchema";
 import BackToLogin from "../../../../components/ui/BackToLogin";
@@ -17,6 +17,7 @@ import { getVietnameseAuthError } from "../../utils/authMessages";
 
 function ForgotPasswordForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [submitError, setSubmitError] = useState("");
 
   const {
@@ -28,7 +29,7 @@ function ForgotPasswordForm() {
     mode: "onSubmit",
     reValidateMode: "onChange",
     defaultValues: {
-      email: "",
+      email: location.state?.email || "",
     },
   });
   const onSubmit = async ({ email }) => {
