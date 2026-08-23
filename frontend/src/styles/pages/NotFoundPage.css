@@ -1,0 +1,26 @@
+.not-found-card {
+  text-align: center;
+}
+
+.not-found-code {
+  margin-bottom: 8px;
+  color: var(--primary-500);
+  font-size: clamp(56px, 12vw, 88px);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.not-found-card h1 {
+  margin-bottom: 12px;
+  color: var(--primary-900);
+}
+
+.not-found-card > p:last-of-type {
+  margin-bottom: 20px;
+  color: var(--neutral-700);
+}
+
+.not-found-link {
+  display: block;
+  text-align: center;
+}

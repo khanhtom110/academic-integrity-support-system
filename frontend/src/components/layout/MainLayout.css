@@ -1,0 +1,23 @@
+.main-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: url("../../assets/images/bgr_lg_rg.webp") no-repeat center bottom fixed;
+  background-size: cover;
+  background-color: #f8fafc;
+}
+
+.main-content {
+  flex: 1;
+  margin-top: 70px; /* Offset for fixed header */
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  flex: 1;
+}

@@ -1,0 +1,27 @@
+.login-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.login-success h1 {
+  color: var(--primary-900);
+}
+
+.login-success p {
+  color: var(--neutral-700);
+}
+
+.login-success-icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  color: var(--neutral-300);
+  background: var(--success-500);
+  border-radius: 50%;
+  font-size: 32px;
+  font-weight: 700;
+}

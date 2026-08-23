@@ -1,0 +1,157 @@
+.main-header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  height: 70px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+}
+
+.header-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo */
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-image {
+  height: 40px;
+  width: auto;
+}
+
+.logo-text {
+  font-size: 24px;
+  font-weight: 800;
+  color: #003399; /* Deep blue from HaUI */
+  letter-spacing: 0.5px;
+}
+
+/* Navigation */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  transition: color 0.2s ease;
+}
+
+.nav-item:hover, .nav-item.active {
+  color: #003399;
+}
+
+/* User Profile */
+.header-user {
+  position: relative;
+  cursor: pointer;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.caret-icon {
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.user-profile:hover .caret-icon {
+  color: #003399;
+}
+
+.caret-icon.open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1010;
+  border: 1px solid #eaeaea;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f7fa;
+}
+
+.dropdown-item svg {
+  color: #666;
+}
+
+.dropdown-item.text-danger {
+  color: #e53e3e;
+}
+
+.dropdown-item.text-danger:hover {
+  background-color: #fff5f5;
+}
+
+.dropdown-item.text-danger svg {
+  color: #e53e3e;
+}
