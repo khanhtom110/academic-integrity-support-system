@@ -1,0 +1,65 @@
+.app-shell {
+  --main-header-height: clamp(112px, 14.82dvh, 160px);
+  --main-padding-top: clamp(28px, 4dvh, 44px);
+  --main-padding-bottom: clamp(36px, 6dvh, 64px);
+
+  min-height: 100dvh;
+  background: var(--neutral-300) url("../../../assets/images/bgr_lg_rg.webp") center bottom / cover no-repeat;
+}
+
+.app-main {
+  min-height: calc(100dvh - var(--main-header-height));
+  padding: var(--main-padding-top) 24px var(--main-padding-bottom);
+}
+
+.app-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(520px, 100%);
+  min-height: 280px;
+  gap: 14px;
+  margin: 0 auto;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.app-state h1 {
+  color: var(--primary-900);
+  font-size: 24px;
+}
+
+.app-state .primary-btn {
+  width: auto;
+  margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    --main-header-height: 112px;
+    --main-padding-top: 28px;
+    --main-padding-bottom: 36px;
+  }
+
+  .app-main {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+}
+
+@media (max-width: 599px) {
+  .app-shell {
+    --main-header-height: 82px;
+    --main-padding-top: 24px;
+    --main-padding-bottom: 32px;
+  }
+
+  .app-main {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+}

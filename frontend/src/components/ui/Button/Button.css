@@ -1,0 +1,33 @@
+.primary-btn {
+  width: 100%;
+
+  padding: 14px;
+
+  background: var(--primary-500);
+
+  color: white;
+
+  border-radius: var(--radius-md);
+
+  transition: var(--transition);
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.primary-btn:hover {
+  background: var(--primary-700);
+}
+
+.primary-btn:focus-visible {
+  outline: 3px solid rgba(19, 99, 223, 0.22);
+  outline-offset: 2px;
+}
+
+.primary-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.primary-btn:disabled:hover {
+  background: var(--primary-500);
+}

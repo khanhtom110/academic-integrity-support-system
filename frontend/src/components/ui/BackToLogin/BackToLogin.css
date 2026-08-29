@@ -1,0 +1,26 @@
+.back-login {
+  margin-top: 24px;
+
+  display: flex;
+
+  justify-content: center;
+}
+
+.back-login a {
+  min-height: 44px;
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  color: var(--primary-500);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.back-login a:hover {
+  color: var(--primary-700);
+  text-decoration: underline;
+}

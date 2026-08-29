@@ -1,0 +1,59 @@
+.auth-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.auth-steps li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: var(--neutral-600);
+  font-size: 12px;
+  text-align: center;
+}
+
+.auth-steps li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: calc(50% + 18px);
+  width: calc(100% - 28px);
+  height: 2px;
+  background: var(--neutral-400);
+}
+
+.auth-step-number {
+  position: relative;
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--neutral-500);
+  border-radius: 50%;
+  background: var(--neutral-300);
+  font-weight: 700;
+}
+
+.auth-steps .current,
+.auth-steps .completed {
+  color: var(--primary-500);
+}
+
+.auth-steps .current .auth-step-number,
+.auth-steps .completed .auth-step-number {
+  border-color: var(--primary-500);
+}
+
+.auth-steps .current .auth-step-number {
+  background: var(--primary-500);
+  color: white;
+}
+
+.auth-steps .completed::after {
+  background: var(--primary-500);
+}
