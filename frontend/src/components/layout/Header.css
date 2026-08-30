@@ -59,7 +59,23 @@
 }
 
 .nav-item:hover, .nav-item.active {
-  color: #003399;
+  color: #1363df;
+}
+
+.nav-item.active {
+  position: relative;
+  color: #1363df;
+}
+
+.nav-item.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 2.5px;
+  background: #1363df;
+  border-radius: 999px;
 }
 
 /* User Profile */

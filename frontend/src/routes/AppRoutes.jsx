@@ -14,6 +14,7 @@ const ResetPasswordPage = lazy(() => import("../pages/ResetPasswordPage"));
 const ResetPasswordSuccessPage = lazy(() => import("../pages/ResetPasswordSuccessPage"));
 const OAuthCallbackPage = lazy(() => import("../pages/OAuthCallbackPage"));
 const HomePage = lazy(() => import("../pages/HomePage"));
+const JournalLookupPage = lazy(() => import("../pages/JournalLookupPage"));
 const ProfilePage = lazy(() => import("../pages/ProfilePage"));
 const ChangePasswordPage = lazy(() => import("../pages/ChangePasswordPage"));
 const ProfileForgotPasswordPage = lazy(() => import("../pages/ProfileForgotPasswordPage"));
@@ -93,6 +94,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <MainLayout>
               <ProfileResetPasswordPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTES.JOURNAL_LOOKUP}
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <JournalLookupPage />
             </MainLayout>
           </ProtectedRoute>
         }

@@ -13,8 +13,8 @@ function NotFoundPage() {
         <p className="not-found-code" aria-hidden="true">404</p>
         <h1 className="heading-2">Không tìm thấy trang</h1>
         <p>Đường dẫn bạn truy cập không tồn tại hoặc đã được thay đổi.</p>
-        <Link to={ROUTES.LOGIN} className="primary-btn not-found-link">
-          Quay lại đăng nhập
+        <Link to={ROUTES.HOME} className="primary-btn not-found-link">
+          Quay lại trang chủ
         </Link>
       </Card>
     </AuthLayout>

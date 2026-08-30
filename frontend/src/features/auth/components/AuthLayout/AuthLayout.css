@@ -3,11 +3,26 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url("../../../../assets/images/bgr_lg_rg.webp");
-  background-size: cover;
+  position: relative;
+  background-color: #f8fafc;
+}
+
+.auth-layout::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: url("../../../../assets/images/bgr_lg_rg.webp") no-repeat center center;
+  background-size: 100% 100%;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .auth-wrapper {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -1,5 +1,6 @@
 export const ROUTES = {
   HOME: "/",
+  JOURNAL_LOOKUP: "/journal-lookup",
   LOGIN: "/login",
   OAUTH_GOOGLE_CALLBACK: "/oauth2/callback/google",
   OAUTH_OUTLOOK_CALLBACK: "/oauth2/callback/outlook",

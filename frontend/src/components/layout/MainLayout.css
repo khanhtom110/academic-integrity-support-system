@@ -2,9 +2,21 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: url("../../assets/images/bgr_lg_rg.webp") no-repeat center bottom fixed;
-  background-size: cover;
+  position: relative;
   background-color: #f8fafc;
+}
+
+.main-layout::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: url("../../assets/images/bgr_lg_rg.webp") no-repeat center center;
+  background-size: 100% 100%;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .main-content {
@@ -12,6 +24,8 @@
   margin-top: 70px; /* Offset for fixed header */
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
 .main-content-wrapper {
