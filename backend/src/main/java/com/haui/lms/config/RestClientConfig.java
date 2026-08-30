@@ -12,6 +12,7 @@ public class RestClientConfig {
     public RestClient.Builder restClientBuilder() {
         return RestClient.builder();
     }
+
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper();

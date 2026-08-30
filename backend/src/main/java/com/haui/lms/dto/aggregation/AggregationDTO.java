@@ -24,5 +24,4 @@ public class AggregationDTO {
 
     private AuthorAggregationDTO author;
 
-
 }

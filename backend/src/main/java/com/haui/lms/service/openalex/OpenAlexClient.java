@@ -82,7 +82,6 @@ public class OpenAlexClient {
                             .queryParam("select", WORK_SELECT_FIELDS).build())
                     .retrieve().body(WorksResponse.class);
 
-
             if (response == null) {
                 return new WorksBatch(List.of(), null);
             }
@@ -117,9 +116,7 @@ public class OpenAlexClient {
 
         // Nếu nhập 00928674 -> chuyển thành 0092-8674
         if (value.matches("\\d{8}")) {
-            return value.substring(0, 4)
-                    + "-"
-                    + value.substring(4);
+            return value.substring(0, 4) + "-" + value.substring(4);
         }
 
         return value;
@@ -144,7 +141,6 @@ public class OpenAlexClient {
             return nextCursor;
         }
     }
-
 
     private static class WorksResponse {
 

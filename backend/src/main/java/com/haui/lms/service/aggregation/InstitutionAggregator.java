@@ -29,14 +29,9 @@ public class InstitutionAggregator {
 
     private volatile Map<String, String> countryNames;
 
-    public InstitutionAggregator(
-            RestClient.Builder restClientBuilder,
-            ObjectMapper objectMapper) {
+    public InstitutionAggregator(RestClient.Builder restClientBuilder, ObjectMapper objectMapper) {
 
-        this.restClient =
-                restClientBuilder
-                        .baseUrl("https://api.openalex.org")
-                        .build();
+        this.restClient = restClientBuilder.baseUrl("https://api.openalex.org").build();
 
         this.objectMapper = objectMapper;
     }
@@ -58,20 +53,9 @@ public class InstitutionAggregator {
 
             Map<String, String> result = new HashMap<>();
             try {
-                String json =
-                        restClient
-                                .get()
-                                .uri(uriBuilder ->
-                                        uriBuilder
-                                                .path("/countries")
-                                                .queryParam(
-                                                        "per-page",
-                                                        200
-                                                )
-                                                .build()
-                                )
-                                .retrieve()
-                                .body(String.class);
+                String json = restClient.get()
+                        .uri(uriBuilder -> uriBuilder.path("/countries").queryParam("per-page", 200).build()).retrieve()
+                        .body(String.class);
 
                 if (json != null && !json.isBlank()) {
                     JsonNode root = objectMapper.readTree(json);
@@ -85,34 +69,20 @@ public class InstitutionAggregator {
                                 continue;
                             }
 
-                            String code =
-                                    codeNode
-                                            .asText()
-                                            .trim()
-                                            .toUpperCase();
+                            String code = codeNode.asText().trim().toUpperCase();
 
-                            String name =
-                                    nameNode
-                                            .asText()
-                                            .trim();
+                            String name = nameNode.asText().trim();
 
-                            if (!code.isBlank() &&
-                                    !name.isBlank()) {
+                            if (!code.isBlank() && !name.isBlank()) {
 
-                                result.put(
-                                        code,
-                                        name
-                                );
+                                result.put(code, name);
                             }
                         }
                     }
                 }
 
             } catch (Exception e) {
-                System.err.println(
-                        "Cannot load OpenAlex countries: "
-                                + e.getMessage()
-                );
+                System.err.println("Cannot load OpenAlex countries: " + e.getMessage());
             }
 
             countryNames = result;
@@ -121,8 +91,7 @@ public class InstitutionAggregator {
     }
 
     private String resolveCountryName(String countryCode) {
-        if (countryCode == null ||
-                countryCode.isBlank()) {
+        if (countryCode == null || countryCode.isBlank()) {
             return "Unknown";
         }
         String code = countryCode.trim().toUpperCase();
@@ -133,9 +102,7 @@ public class InstitutionAggregator {
         return code;
     }
 
-    public void aggregateBatch(
-            Accumulator accumulator,
-            List<OpenAlexWorkDTO> works) {
+    public void aggregateBatch(Accumulator accumulator, List<OpenAlexWorkDTO> works) {
 
         if (accumulator == null || works == null || works.isEmpty()) {
             return;
@@ -185,11 +152,7 @@ public class InstitutionAggregator {
                     }
 
                     String countryName = resolveCountryName(countryCode);
-                    pairs.add(
-                            countryName
-                                    + "|"
-                                    + institutionName
-                    );
+                    pairs.add(countryName + "|" + institutionName);
                 }
             }
 
@@ -207,12 +170,7 @@ public class InstitutionAggregator {
                 String country = pair.substring(0, separator);
 
                 String institution = pair.substring(separator + 1);
-                byCountry
-                        .computeIfAbsent(
-                                country,
-                                c -> new HashSet<>()
-                        )
-                        .add(institution);
+                byCountry.computeIfAbsent(country, c -> new HashSet<>()).add(institution);
             }
 
             if (byCountry.isEmpty()) {
@@ -232,48 +190,18 @@ public class InstitutionAggregator {
                     continue;
                 }
 
-                accumulator
-                        .cPapersPerYear
-                        .computeIfAbsent(
-                                country,
-                                c -> new HashMap<>()
-                        )
-                        .merge(
-                                year,
-                                countryFraction,
-                                Double::sum
-                        );
+                accumulator.cPapersPerYear.computeIfAbsent(country, c -> new HashMap<>()).merge(year, countryFraction,
+                        Double::sum);
 
                 double institutionFraction = countryFraction / institutions.size();
 
                 for (String institution : institutions) {
-                    accumulator
-                            .ciYearInst
-                            .computeIfAbsent(
-                                    country,
-                                    c -> new HashMap<>()
-                            )
-                            .computeIfAbsent(
-                                    year,
-                                    y -> new HashMap<>()
-                            )
-                            .merge(
-                                    institution,
-                                    institutionFraction,
-                                    Double::sum
-                            );
+                    accumulator.ciYearInst.computeIfAbsent(country, c -> new HashMap<>())
+                            .computeIfAbsent(year, y -> new HashMap<>())
+                            .merge(institution, institutionFraction, Double::sum);
 
-                    accumulator
-                            .ciTotalsByCountry
-                            .computeIfAbsent(
-                                    country,
-                                    c -> new HashMap<>()
-                            )
-                            .merge(
-                                    institution,
-                                    institutionFraction,
-                                    Double::sum
-                            );
+                    accumulator.ciTotalsByCountry.computeIfAbsent(country, c -> new HashMap<>()).merge(institution,
+                            institutionFraction, Double::sum);
                 }
             }
         }
@@ -290,316 +218,153 @@ public class InstitutionAggregator {
 
         Set<Integer> yearsSet = new HashSet<>();
 
-        for (Map<Integer, Double> yearly :
-                accumulator
-                        .cPapersPerYear
-                        .values()) {
+        for (Map<Integer, Double> yearly : accumulator.cPapersPerYear.values()) {
 
-            yearsSet.addAll(
-                    yearly.keySet()
-            );
+            yearsSet.addAll(yearly.keySet());
         }
 
         List<Integer> years = new ArrayList<>(yearsSet);
         years.sort(Integer::compareTo);
 
-        List<String> safeTopCountries =
-                topCountries == null
-                        ? Collections.emptyList()
-                        : topCountries;
+        List<String> safeTopCountries = topCountries == null ? Collections.emptyList() : topCountries;
 
-        List<String> institutionCountries =
-                safeTopCountries
-                        .stream()
-                        .filter(
-                                accumulator
-                                        .ciTotalsByCountry
-                                        ::containsKey
-                        )
-                        .toList();
+        List<String> institutionCountries = safeTopCountries.stream().filter(accumulator.ciTotalsByCountry::containsKey)
+                .toList();
 
-        Map<String, InstitutionCountryDTO>
-                institutionData =
-                new HashMap<>();
+        Map<String, InstitutionCountryDTO> institutionData = new HashMap<>();
 
-        for (String country :
-                institutionCountries) {
+        for (String country : institutionCountries) {
 
-            Map<String, Double>
-                    institutionTotals =
-                    accumulator
-                            .ciTotalsByCountry
-                            .get(country);
+            Map<String, Double> institutionTotals = accumulator.ciTotalsByCountry.get(country);
 
-            if (institutionTotals == null ||
-                    institutionTotals.isEmpty()) {
+            if (institutionTotals == null || institutionTotals.isEmpty()) {
 
                 continue;
             }
 
-            List<String> sortedInstitutions =
-                    institutionTotals
-                            .keySet()
-                            .stream()
-                            .sorted(
-                                    (a, b) ->
-                                            Double.compare(
-                                                    institutionTotals
-                                                            .get(b),
-                                                    institutionTotals
-                                                            .get(a)
-                                            )
-                            )
-                            .toList();
+            List<String> sortedInstitutions = institutionTotals.keySet().stream()
+                    .sorted((a, b) -> Double.compare(institutionTotals.get(b), institutionTotals.get(a))).toList();
 
+            List<String> topInstitutions = sortedInstitutions.stream().limit(TOP_INSTITUTIONS).toList();
 
-            List<String> topInstitutions =
-                    sortedInstitutions
-                            .stream()
-                            .limit(
-                                    TOP_INSTITUTIONS
-                            )
-                            .toList();
+            Set<String> topInstitutionSet = new HashSet<>(topInstitutions);
 
-            Set<String> topInstitutionSet =
-                    new HashSet<>(
-                            topInstitutions
-                    );
+            Map<String, Map<Integer, Double>> data = new HashMap<>();
 
-            Map<String, Map<Integer, Double>>
-                    data =
-                    new HashMap<>();
+            Map<Integer, Map<String, Double>> countryYearData = accumulator.ciYearInst.getOrDefault(country,
+                    Collections.emptyMap());
 
-            Map<Integer, Map<String, Double>>
-                    countryYearData =
-                    accumulator
-                            .ciYearInst
-                            .getOrDefault(
-                                    country,
-                                    Collections.emptyMap()
-                            );
+            for (String institutionName : topInstitutions) {
 
-            for (String institutionName :
-                    topInstitutions) {
+                Map<Integer, Double> yearlyData = new HashMap<>();
 
-                Map<Integer, Double>
-                        yearlyData =
-                        new HashMap<>();
+                for (Integer year : years) {
 
-                for (Integer year :
-                        years) {
+                    double value = countryYearData.getOrDefault(year, Collections.emptyMap())
+                            .getOrDefault(institutionName, 0.0);
 
-                    double value =
-                            countryYearData
-                                    .getOrDefault(
-                                            year,
-                                            Collections.emptyMap()
-                                    )
-                                    .getOrDefault(
-                                            institutionName,
-                                            0.0
-                                    );
+                    value = Math.round(value * 100.0) / 100.0;
 
-                    value =
-                            Math.round(
-                                    value * 100.0
-                            ) / 100.0;
-
-                    yearlyData.put(
-                            year,
-                            value
-                    );
+                    yearlyData.put(year, value);
                 }
 
-                data.put(
-                        institutionName,
-                        yearlyData
-                );
+                data.put(institutionName, yearlyData);
             }
 
-            Map<Integer, Double>
-                    otherData =
-                    new HashMap<>();
+            Map<Integer, Double> otherData = new HashMap<>();
 
-            boolean hasOther =
-                    false;
+            boolean hasOther = false;
 
-            for (Map.Entry<Integer, Map<String, Double>>
-                    yearEntry :
-                    countryYearData.entrySet()) {
+            for (Map.Entry<Integer, Map<String, Double>> yearEntry : countryYearData.entrySet()) {
 
-                Integer year =
-                        yearEntry.getKey();
+                Integer year = yearEntry.getKey();
 
-                Map<String, Double>
-                        institutions =
-                        yearEntry.getValue();
+                Map<String, Double> institutions = yearEntry.getValue();
 
                 if (institutions == null) {
 
                     continue;
                 }
 
-                for (Map.Entry<String, Double>
-                        institutionEntry :
-                        institutions.entrySet()) {
+                for (Map.Entry<String, Double> institutionEntry : institutions.entrySet()) {
 
-                    String institutionName =
-                            institutionEntry.getKey();
+                    String institutionName = institutionEntry.getKey();
 
-                    if (topInstitutionSet
-                            .contains(
-                                    institutionName
-                            )) {
+                    if (topInstitutionSet.contains(institutionName)) {
 
                         continue;
                     }
 
                     hasOther = true;
 
-                    otherData.merge(
-                            year,
-                            institutionEntry.getValue(),
-                            Double::sum
-                    );
+                    otherData.merge(year, institutionEntry.getValue(), Double::sum);
                 }
             }
 
             if (hasOther) {
 
-                for (Integer year :
-                        years) {
+                for (Integer year : years) {
 
-                    double value =
-                            otherData
-                                    .getOrDefault(
-                                            year,
-                                            0.0
-                                    );
+                    double value = otherData.getOrDefault(year, 0.0);
 
-                    value =
-                            Math.round(
-                                    value * 100.0
-                            ) / 100.0;
+                    value = Math.round(value * 100.0) / 100.0;
 
-                    otherData.put(
-                            year,
-                            value
-                    );
+                    otherData.put(year, value);
                 }
 
-                data.put(
-                        "Other",
-                        otherData
-                );
+                data.put("Other", otherData);
             }
 
             /*
-             * =================================================
-             * 6. PAPERS PER YEAR
+             * ================================================= 6. PAPERS PER YEAR
              * =================================================
              *
-             * Đây là tổng fractional papers
-             * của country trong từng năm.
+             * Đây là tổng fractional papers của country trong từng năm.
              */
 
-            Map<Integer, Double>
-                    countryPapersPerYear =
-                    new HashMap<>();
+            Map<Integer, Double> countryPapersPerYear = new HashMap<>();
 
-            Map<Integer, Double>
-                    papers =
-                    accumulator
-                            .cPapersPerYear
-                            .getOrDefault(
-                                    country,
-                                    Collections.emptyMap()
-                            );
+            Map<Integer, Double> papers = accumulator.cPapersPerYear.getOrDefault(country, Collections.emptyMap());
 
-            for (Integer year :
-                    years) {
+            for (Integer year : years) {
 
-                double value =
-                        papers.getOrDefault(
-                                year,
-                                0.0
-                        );
+                double value = papers.getOrDefault(year, 0.0);
 
-                value =
-                        Math.round(
-                                value * 100.0
-                        ) / 100.0;
+                value = Math.round(value * 100.0) / 100.0;
 
-                countryPapersPerYear.put(
-                        year,
-                        value
-                );
+                countryPapersPerYear.put(year, value);
             }
 
-            List<String> finalTopInstitutions =
-                    new ArrayList<>(
-                            topInstitutions
-                    );
+            List<String> finalTopInstitutions = new ArrayList<>(topInstitutions);
 
             if (hasOther) {
 
-                finalTopInstitutions.add(
-                        "Other"
-                );
+                finalTopInstitutions.add("Other");
             }
 
-            InstitutionCountryDTO countryDTO =
-                    new InstitutionCountryDTO();
+            InstitutionCountryDTO countryDTO = new InstitutionCountryDTO();
 
-            countryDTO.setTopInstitutions(
-                    finalTopInstitutions
-            );
+            countryDTO.setTopInstitutions(finalTopInstitutions);
 
-            countryDTO.setData(
-                    data
-            );
+            countryDTO.setData(data);
 
-            countryDTO.setPapersPerYear(
-                    countryPapersPerYear
-            );
+            countryDTO.setPapersPerYear(countryPapersPerYear);
 
-            institutionData.put(
-                    country,
-                    countryDTO
-            );
+            institutionData.put(country, countryDTO);
         }
 
-        result.setCountries(
-                institutionCountries
-        );
+        result.setCountries(institutionCountries);
 
-        result.setData(
-                institutionData
-        );
+        result.setData(institutionData);
 
         return result;
     }
 
     public static class Accumulator {
-        private final Map<
-                String,
-                Map<
-                        Integer,
-                        Map<String, Double>
-                        >
-                > ciYearInst =
-                new HashMap<>();
+        private final Map<String, Map<Integer, Map<String, Double>>> ciYearInst = new HashMap<>();
 
-        private final Map<
-                String,
-                Map<String, Double>
-                > ciTotalsByCountry =
-                new HashMap<>();
+        private final Map<String, Map<String, Double>> ciTotalsByCountry = new HashMap<>();
 
-        private final Map<
-                String,
-                Map<Integer, Double>
-                > cPapersPerYear =
-                new HashMap<>();
+        private final Map<String, Map<Integer, Double>> cPapersPerYear = new HashMap<>();
     }
 }
