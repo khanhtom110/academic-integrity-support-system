@@ -17,7 +17,13 @@ public class UrlConstant {
         public static final String FORGOT_PASSWORD = PREFIX + "/forgot-password";
         public static final String VERIFY_OTP = PREFIX + "/verify-otp";
         public static final String VERIFY_REGISTER_OTP = PREFIX + "/verify-register";
+        public static final String VERIFY_RESET_OTP = PREFIX + "/verify-reset-otp";
         public static final String RESET_PASSWORD = PREFIX + "/reset-password";
+        public static final String RESEND_OTP = PREFIX + "/resend-otp";
+
+        public static final String GOOGLE = PREFIX + "/google";
+        public static final String FACEBOOK = PREFIX + "/facebook";
+        public static final String OUTLOOK = PREFIX + "/outlook";
 
         private Auth() {
         }
@@ -27,14 +33,25 @@ public class UrlConstant {
         private static final String PREFIX = "/user";
 
         public static final String GET_PROFILE = PREFIX + "/profile";
-        public static final String UPDATE_PROFILE = PREFIX + "/update-profile/{id}";
+        public static final String UPDATE_PROFILE = PREFIX + "/profile";
         public static final String CHANGE_PASSWORD = PREFIX + "/change-password";
+        public static final String AVATAR = PREFIX + "/avatar";
         public static final String LOGOUT = PREFIX + "/logout";
         public static final String BOOK_APPOINTMENT = PREFIX + "/appointments/book";
         public static final String DEVICE_TOKEN = PREFIX + "/device-token";
         public static final String USER_REMINDER = PREFIX + "/user-reminder";
 
         private User() {
+        }
+    }
+
+    public static class Journal {
+        private static final String PREFIX = "/journals";
+
+        public static final String SEARCH = PREFIX + "/search";
+        public static final String DETAIL = PREFIX + "/{issn}";
+
+        private Journal() {
         }
     }
 

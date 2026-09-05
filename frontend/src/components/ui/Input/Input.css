@@ -1,0 +1,54 @@
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  color: var(--neutral-900);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 16px;
+
+  border: 1px solid var(--neutral-500);
+
+  border-radius: var(--radius-md);
+
+  transition: var(--transition);
+}
+
+/* Focus */
+
+.input-group input:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(19, 99, 223, 0.14);
+}
+
+/* Khi có lỗi */
+
+.input-group input.input-invalid {
+  border-color: var(--error-500);
+  background: var(--error-200);
+}
+
+.input-group input.input-invalid:focus {
+  border-color: var(--error-500);
+  box-shadow: 0 0 0 3px rgba(222, 41, 56, 0.14);
+}
+
+/* Thông báo lỗi */
+
+.input-error {
+  margin-top: 6px;
+
+  font-size: 13px;
+
+  font-weight: 400;
+
+  color: var(--error-500);
+
+  line-height: 1.4;
+}
