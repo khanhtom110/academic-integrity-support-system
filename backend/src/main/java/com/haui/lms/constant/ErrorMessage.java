@@ -71,6 +71,7 @@ public final class ErrorMessage {
         public static final String JOURNAL_NOT_FOUND = "This journal was not found in the OpenAlex database. It does not necessarily mean the journal does not exist or is untrustworthy: many local journals are not indexed internationally.";
         public static final String OPENALEX_UNAVAILABLE = "Cannot reach the OpenAlex data source at the moment. Please try again later.";
         public static final String SEARCH_QUERY_TOO_SHORT = "Please enter at least 2 characters to search.";
+        public static final String RATE_LIMIT_EXCEEDED = "The daily OpenAlex query quota has been used up. It will reset at midnight UTC (7:00 AM Vietnam time).";
     }
 
     // Upload Errors
