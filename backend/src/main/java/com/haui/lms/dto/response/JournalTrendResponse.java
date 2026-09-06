@@ -10,11 +10,14 @@ import java.util.List;
  * <p>
  * Cach dem khong giong nhau giua cac tab, day la chu y quan trong khi hien thi:
  * <ul>
- * <li>Quoc gia va to chuc dung <b>fractional counting</b>: mot bai luon dong gop tong cong 1.0, chia deu cho cac dong
- * tac gia roi chia tiep cho cac quoc gia hoac to chuc trong dong do. Nho vay bai hop tac quoc te khong bi dem lap.</li>
+ * <li>Quoc gia va to chuc dung <b>fractional counting</b> theo cong thuc
+ * <code>1 / so quoc gia rieng biet cua bai</code>, giong journaltrends. Mot bai co 4 tac gia An Do va 1 tac gia Duc thi
+ * moi nuoc duoc 0.5.</li>
  * <li>Tac gia dung <b>presence counting</b>: moi tac gia duoc tinh 1 cho moi bai ho tham gia, khong chia nho.</li>
  * </ul>
- * Vi vay tong cua cac quoc gia se bang so bai, con tong cua cac tac gia thi lon hon.
+ * Bai khong co thong tin quoc gia hoac to chuc duoc gom vao muc <b>Unknown</b>, nen tong cua cac quoc gia trong mot nam
+ * luon bang dung so bai cua nam do. Frontend tu suy ra muc "Other" cho phan ngoai top 20 bang cach lay so bai cua nam
+ * tru di tong cac muc tra ve. Tong cua cac tac gia thi lon hon so bai vi moi bai co nhieu tac gia.
  */
 public record JournalTrendResponse(@Schema(description = "Mã OpenAlex của tạp chí") String openAlexId,
 
