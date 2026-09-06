@@ -303,10 +303,25 @@ class TrendAggregator {
         List<JournalTrendResponse.YearCount> worksSeries = years.stream()
                 .map(year -> new JournalTrendResponse.YearCount(year, worksByYear.get(year))).toList();
 
+        // Tinh moi danh sach chi tiet dung mot lan, roi trich ten ra lam label. Tranh goi topEntries() hai lan cho
+        // cung mot map, vua ton cong vua co the ra hai ket qua khac nhau neu co hai muc bang diem (tie-break khong on
+        // dinh o HashMap).
+        List<JournalTrendResponse.TrendEntry> countryEntries = topEntries(countries);
+        List<JournalTrendResponse.TrendEntry> institutionEntries = topEntries(institutions);
+        List<JournalTrendResponse.TrendEntry> authorEntries = topEntries(authors);
+
         return new JournalTrendResponse(openAlexId, issn, displayName, fromYear, toYear, inferUnknown, totalWorks,
                 countRealEntities(countries), countRealEntities(institutions), authors.size(), years, worksSeries,
-                topEntries(countries), topEntries(institutions), topInstitutionsByCountry(), topEntries(authors),
-                Instant.now());
+                countryEntries, labelsOf(countryEntries), institutionEntries, labelsOf(institutionEntries),
+                topInstitutionsByCountry(), authorEntries, labelsOf(authorEntries), Instant.now());
+    }
+
+    /**
+     * Chi lay ten, dung thu tu voi danh sach chi tiet tuong ung. Tien cho frontend dung lam chu thich (legend) ma khong
+     * phai tu trich ten tu mang chi tiet.
+     */
+    private List<String> labelsOf(List<JournalTrendResponse.TrendEntry> entries) {
+        return entries.stream().map(JournalTrendResponse.TrendEntry::name).toList();
     }
 
     /**

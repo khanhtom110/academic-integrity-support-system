@@ -185,6 +185,26 @@ class TrendAggregatorTest {
     }
 
     @Test
+    @DisplayName("countryLabels, institutionLabels, authorLabels dung thu tu voi mang chi tiet tuong ung")
+    void labelListsMatchDetailListsOrder() {
+        TrendAggregator aggregator = new TrendAggregator();
+
+        aggregator.add(work(2016, authorship("A1", "IN"), authorship("A2", "DE")));
+        aggregator.add(work(2016, authorship("A1", "IN")));
+
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016, false);
+
+        List<String> expectedCountryNames = response.countries().stream().map(JournalTrendResponse.TrendEntry::name)
+                .toList();
+        List<String> expectedAuthorNames = response.authors().stream().map(JournalTrendResponse.TrendEntry::name)
+                .toList();
+
+        assertEquals(expectedCountryNames, response.countryLabels());
+        assertEquals(expectedAuthorNames, response.authorLabels());
+        assertEquals(response.countries().size(), response.countryLabels().size());
+    }
+
+    @Test
     @DisplayName("Bai khong co nam xuat ban bi bo qua")
     void workWithoutYearIsIgnored() {
         TrendAggregator aggregator = new TrendAggregator();

@@ -22,6 +22,11 @@ import java.util.List;
  * Bai khong co thong tin quoc gia hoac to chuc duoc gom vao muc <b>Unknown</b>, nen tong cua cac quoc gia trong mot nam
  * luon bang dung so bai cua nam do. Frontend tu suy ra muc "Other" cho phan ngoai top 20 bang cach lay so bai cua nam
  * tru di tong cac muc tra ve. Tong cua cac tac gia thi lon hon so bai vi moi bai co nhieu tac gia.
+ * <p>
+ * Luu y ve vi tri cua Unknown: no xep hang binh thuong theo tong nhu moi muc khac, khong bi day xuong cuoi. Neu Unknown
+ * co tong lon thi no co the dung ngay dau danh sach. journaltrends luon ghim Unknown o cuoi legend kem dau *, neu can
+ * giong het vay thi frontend phai tu tach rieng muc Unknown ra khoi mang truoc khi hien thi, vi countryLabels giu
+ * nguyen thu tu xep hang, khong tach rieng Unknown.
  */
 public record JournalTrendResponse(@Schema(description = "Mã OpenAlex của tạp chí") String openAlexId,
 
@@ -49,13 +54,20 @@ public record JournalTrendResponse(@Schema(description = "Mã OpenAlex của t�
 
         @Schema(description = "Top quốc gia, fractional counting, giảm dần theo tổng") List<TrendEntry> countries,
 
+        @Schema(description = "Chỉ tên các quốc gia trong trường countries, đúng theo thứ tự đó. "
+                + "Tiện cho frontend dựng chú thích (legend) mà không phải tự trích tên từ mảng chi tiết") List<String> countryLabels,
+
         @Schema(description = "Top tổ chức, fractional counting, giảm dần theo tổng") List<TrendEntry> institutions,
+
+        @Schema(description = "Chỉ tên các tổ chức trong trường institutions, đúng theo thứ tự đó") List<String> institutionLabels,
 
         @Schema(description = "Top tổ chức của từng quốc gia, để frontend vẽ dropdown lọc theo quốc gia mà không phải tự nhóm lại. "
                 + "Khác với trường institutions ở trên: mỗi quốc gia có bộ top riêng của chính nó, không phải lọc lại từ top chung, "
                 + "nên tạp chí có nhiều quốc gia đồng đều vẫn ra đúng top tổ chức của từng nước") List<CountryInstitutions> institutionsByCountry,
 
         @Schema(description = "Top tác giả, presence counting, giảm dần theo số bài") List<TrendEntry> authors,
+
+        @Schema(description = "Chỉ tên các tác giả trong trường authors, đúng theo thứ tự đó") List<String> authorLabels,
 
         @Schema(description = "Thời điểm hoàn tất phân tích") Instant fetchedAt) {
 
