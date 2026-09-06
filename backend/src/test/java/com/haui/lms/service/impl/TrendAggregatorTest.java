@@ -5,6 +5,7 @@ import com.haui.lms.dto.response.openalex.OpenAlexWorksResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -225,6 +226,24 @@ class TrendAggregatorTest {
 
         int sum = mix.counts().values().stream().mapToInt(Integer::intValue).sum();
         assertEquals(4, sum, "tong so bai theo loai phai bang dung so bai cua nam, khong chia nho");
+    }
+
+    @Test
+    @DisplayName("counts trong tung nam cung phai giam dan, khong chi contentMixLabels")
+    void contentMixCountsSortedDescendingPerYear() {
+        TrendAggregator aggregator = new TrendAggregator();
+
+        aggregator.add(new OpenAlexWorksResponse.Work("W1", 2018, "paratext", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W2", 2018, "article", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W3", 2018, "article", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W4", 2018, "article", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W5", 2018, "editorial", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W6", 2018, "editorial", List.of()));
+
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2018, 2018, false);
+
+        List<String> orderInThisYear = new ArrayList<>(response.contentMixByYear().get(0).counts().keySet());
+        assertEquals(List.of("article", "editorial", "paratext"), orderInThisYear);
     }
 
     @Test

@@ -119,6 +119,18 @@ class TrendAggregator {
     }
 
     /**
+     * counts la HashMap nen khong giu thu tu chen; JSON tra ve se hien theo dung thu tu cua map nay khi serialize, vi
+     * vay phai chuyen sang LinkedHashMap da sap xep truoc khi dua vao response. Neu khong lam thi moi nam mot thu tu
+     * khac nhau tuy hash cua chuoi, nhin nhu chua sap xep gi ca.
+     */
+    private Map<String, Integer> sortByCountDescending(Map<String, Integer> counts) {
+        Map<String, Integer> sorted = new LinkedHashMap<>();
+        counts.entrySet().stream().sorted(Map.Entry.<String, Integer> comparingByValue().reversed())
+                .forEach(entry -> sorted.put(entry.getKey(), entry.getValue()));
+        return sorted;
+    }
+
+    /**
      * Muc 1 va 2 cua viec tim quoc gia cua bai. Khong ra thi de danh lai cho muc 3.
      */
     private void addCountries(List<OpenAlexWorksResponse.Authorship> authorships, int year) {
@@ -326,8 +338,9 @@ class TrendAggregator {
         List<JournalTrendResponse.YearCount> worksSeries = years.stream()
                 .map(year -> new JournalTrendResponse.YearCount(year, worksByYear.get(year))).toList();
 
-        List<JournalTrendResponse.YearContentMix> contentMixSeries = years.stream().map(
-                year -> new JournalTrendResponse.YearContentMix(year, contentMixByYear.getOrDefault(year, Map.of())))
+        List<JournalTrendResponse.YearContentMix> contentMixSeries = years.stream()
+                .map(year -> new JournalTrendResponse.YearContentMix(year,
+                        sortByCountDescending(contentMixByYear.getOrDefault(year, Map.of()))))
                 .toList();
 
         List<String> contentMixLabels = contentMixTotals.entrySet().stream()
