@@ -50,7 +50,7 @@ public class OpenAlexClient {
      * Chi lay dung nhung truong can de tinh xu huong. Neu bo select thi moi ban ghi work nang gap hang chuc lan, keo ca
      * mot tap chi lon ve se mat vai tram MB.
      */
-    private static final String WORKS_SELECT_FIELDS = "id,publication_year,authorships";
+    private static final String WORKS_SELECT_FIELDS = "id,publication_year,type,authorships";
 
     /**
      * Chi can noi cong tac gan nhat de biet quoc gia cua tac gia.

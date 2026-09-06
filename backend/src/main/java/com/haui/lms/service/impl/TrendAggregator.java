@@ -52,6 +52,12 @@ class TrendAggregator {
     private static final String UNKNOWN_NAME = "Unknown";
 
     private final Map<Integer, Integer> worksByYear = new HashMap<>();
+
+    /**
+     * So bai theo loai (article/editorial/paratext...), gop theo tung nam. Khong chia nho nhu quoc gia hay to chuc: moi
+     * bai chi thuoc dung mot loai.
+     */
+    private final Map<Integer, Map<String, Integer>> contentMixByYear = new HashMap<>();
     private final Map<String, EntityStat> countries = new HashMap<>();
     private final Map<String, EntityStat> institutions = new HashMap<>();
     private final Map<String, EntityStat> authors = new HashMap<>();
@@ -86,6 +92,7 @@ class TrendAggregator {
         int year = work.publicationYear();
         totalWorks++;
         worksByYear.merge(year, 1, Integer::sum);
+        addContentMix(year, work.type());
 
         List<OpenAlexWorksResponse.Authorship> authorships = work.authorships() == null ? List.of()
                 : work.authorships();
@@ -93,6 +100,15 @@ class TrendAggregator {
         addInstitutions(authorships, year);
         countAuthors(authorships, year);
         addCountries(authorships, year);
+    }
+
+    /**
+     * Dem so bai theo loai (article/editorial/paratext...) trong tung nam. Khac voi quoc gia hay to chuc, day khong
+     * chia nho: moi bai chi thuoc dung mot loai, nen tong cua mot nam luon bang dung so bai cua nam do.
+     */
+    private void addContentMix(int year, String type) {
+        String key = StringUtils.hasText(type) ? type : UNKNOWN_NAME.toLowerCase(Locale.ROOT);
+        contentMixByYear.computeIfAbsent(year, unused -> new HashMap<>()).merge(key, 1, Integer::sum);
     }
 
     /**
@@ -303,6 +319,10 @@ class TrendAggregator {
         List<JournalTrendResponse.YearCount> worksSeries = years.stream()
                 .map(year -> new JournalTrendResponse.YearCount(year, worksByYear.get(year))).toList();
 
+        List<JournalTrendResponse.YearContentMix> contentMixSeries = years.stream().map(
+                year -> new JournalTrendResponse.YearContentMix(year, contentMixByYear.getOrDefault(year, Map.of())))
+                .toList();
+
         // Tinh moi danh sach chi tiet dung mot lan, roi trich ten ra lam label. Tranh goi topEntries() hai lan cho
         // cung mot map, vua ton cong vua co the ra hai ket qua khac nhau neu co hai muc bang diem (tie-break khong on
         // dinh o HashMap).
@@ -312,8 +332,9 @@ class TrendAggregator {
 
         return new JournalTrendResponse(openAlexId, issn, displayName, fromYear, toYear, inferUnknown, totalWorks,
                 countRealEntities(countries), countRealEntities(institutions), authors.size(), years, worksSeries,
-                countryEntries, labelsOf(countryEntries), institutionEntries, labelsOf(institutionEntries),
-                topInstitutionsByCountry(), authorEntries, labelsOf(authorEntries), Instant.now());
+                contentMixSeries, countryEntries, labelsOf(countryEntries), institutionEntries,
+                labelsOf(institutionEntries), topInstitutionsByCountry(), authorEntries, labelsOf(authorEntries),
+                Instant.now());
     }
 
     /**

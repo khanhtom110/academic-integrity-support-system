@@ -354,10 +354,17 @@ public class JournalTrendServiceImpl implements JournalTrendService {
     }
 
     /**
+     * Tang so nay moi khi doi cau truc JournalTrendResponse (them/bo/doi kieu mot truong). Neu khong thi ket qua cu
+     * tren Redis (TTL 7 ngay) van con nguyen dang cu, deserialize len se thieu truong moi va Jackson tu dien null thay
+     * vi bao loi - rat de bi tuong nham la bug logic trong khi thuc chat la du lieu cache qua han cau truc.
+     */
+    private static final String RESPONSE_SCHEMA_VERSION = "v2";
+
+    /**
      * Cache key co ca co suy luan, vi bat va tat cho ra hai bo so lieu khac han nhau.
      */
     private String resultKey(String issn, int fromYear, int toYear, boolean inferUnknown) {
-        return CommonConstant.Journal.CACHE_TREND_PREFIX + issn + ":" + fromYear + "-" + toYear
-                + (inferUnknown ? ":inferred" : ":raw");
+        return CommonConstant.Journal.CACHE_TREND_PREFIX + RESPONSE_SCHEMA_VERSION + ":" + issn + ":" + fromYear + "-"
+                + toYear + (inferUnknown ? ":inferred" : ":raw");
     }
 }

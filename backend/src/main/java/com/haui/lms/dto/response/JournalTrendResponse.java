@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Ket qua phan tich xu huong cua mot tap chi, du de ve ca ba tab quoc gia / to chuc / tac gia.
@@ -52,6 +53,9 @@ public record JournalTrendResponse(@Schema(description = "Mã OpenAlex của t�
 
         @Schema(description = "Số bài theo năm") List<YearCount> worksByYear,
 
+        @Schema(description = "Tỷ lệ loại bài theo năm, ví dụ article/editorial/paratext. Đếm nguyên vẹn theo work.type, "
+                + "không chia nhỏ như quốc gia hay tổ chức, nên tổng của mỗi năm bằng đúng số bài của năm đó") List<YearContentMix> contentMixByYear,
+
         @Schema(description = "Top quốc gia, fractional counting, giảm dần theo tổng") List<TrendEntry> countries,
 
         @Schema(description = "Chỉ tên các quốc gia trong trường countries, đúng theo thứ tự đó. "
@@ -72,6 +76,16 @@ public record JournalTrendResponse(@Schema(description = "Mã OpenAlex của t�
         @Schema(description = "Thời điểm hoàn tất phân tích") Instant fetchedAt) {
 
     public record YearCount(Integer year, Integer count) {
+    }
+
+    /**
+     * @param year
+     *            nam xuat ban
+     * @param counts
+     *            so bai theo tung loai trong nam nay, vi du article: 121, editorial: 1. Chi chua nhung loai thuc su co
+     *            trong nam do, khong dien 0 cho loai khong xuat hien
+     */
+    public record YearContentMix(Integer year, Map<String, Integer> counts) {
     }
 
     /**

@@ -29,6 +29,9 @@ public record OpenAlexWorksResponse(Meta meta, List<Work> results) {
 
             @JsonProperty("publication_year") Integer publicationYear,
 
+            // Vi du: article, editorial, paratext, review, letter, erratum
+            String type,
+
             List<Authorship> authorships) {
     }
 

@@ -205,11 +205,34 @@ class TrendAggregatorTest {
     }
 
     @Test
+    @DisplayName("Content mix dem theo type, khong chia nho nhu quoc gia, tong mot nam bang dung so bai")
+    void contentMixCountsByType() {
+        TrendAggregator aggregator = new TrendAggregator();
+
+        aggregator.add(new OpenAlexWorksResponse.Work("W1", 2018, "article", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W2", 2018, "article", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W3", 2018, "editorial", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W4", 2018, null, List.of()));
+
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2018, 2018, false);
+
+        assertEquals(1, response.contentMixByYear().size());
+        JournalTrendResponse.YearContentMix mix = response.contentMixByYear().get(0);
+        assertEquals(2018, mix.year());
+        assertEquals(2, mix.counts().get("article"));
+        assertEquals(1, mix.counts().get("editorial"));
+        assertEquals(1, mix.counts().get("unknown"));
+
+        int sum = mix.counts().values().stream().mapToInt(Integer::intValue).sum();
+        assertEquals(4, sum, "tong so bai theo loai phai bang dung so bai cua nam, khong chia nho");
+    }
+
+    @Test
     @DisplayName("Bai khong co nam xuat ban bi bo qua")
     void workWithoutYearIsIgnored() {
         TrendAggregator aggregator = new TrendAggregator();
 
-        aggregator.add(new OpenAlexWorksResponse.Work("W1", null, List.of(authorship("A1", "IN"))));
+        aggregator.add(new OpenAlexWorksResponse.Work("W1", null, "article", List.of(authorship("A1", "IN"))));
 
         assertEquals(0, aggregator.getTotalWorks());
     }
@@ -219,7 +242,7 @@ class TrendAggregatorTest {
     // ==========================================
 
     private OpenAlexWorksResponse.Work work(Integer year, OpenAlexWorksResponse.Authorship... authorships) {
-        return new OpenAlexWorksResponse.Work("W-" + year, year, Arrays.asList(authorships));
+        return new OpenAlexWorksResponse.Work("W-" + year, year, "article", Arrays.asList(authorships));
     }
 
     private OpenAlexWorksResponse.Authorship authorship(String authorId, String... countryCodes) {
