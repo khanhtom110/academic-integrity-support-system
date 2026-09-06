@@ -33,17 +33,20 @@ import java.util.Set;
  * Tong cua cac quoc gia trong mot nam luon bang dung so bai cua nam do, nho nhom <b>Unknown</b> don nhung bai khong xac
  * dinh duoc. Neu bo di thi mau so bi hut va moi ty le phan tram deu bi thoi phong.
  * <p>
- * Quoc gia duoc tim theo ba muc, dung dan theo do tin cay giam dan:
+ * Quoc gia cua bai (dung cho tab Country) duoc tim theo ba muc, dung dan theo do tin cay giam dan:
  * <ol>
  * <li>Truong countries do OpenAlex cung cap</li>
  * <li>Chuoi don vi cong tac in tren chinh bai bao, chuan thoi diem xuat ban</li>
  * <li>Noi cong tac gan nhat cua tac gia, chi dung khi bat suy luan va can goi them API</li>
  * </ol>
+ * <p>
+ * To chuc thi lai co quoc gia rieng cua chinh no (institution.country_code), khong lien quan den ba muc tren. To chuc
+ * duoc nhom vao dung quoc gia cua no de phuc vu dropdown loc theo quoc gia o tab Institution.
  */
 class TrendAggregator {
 
     /**
-     * Nhom danh cho bai khong xac dinh duoc quoc gia hoac to chuc.
+     * Nhom danh cho bai hoac to chuc khong xac dinh duoc quoc gia.
      */
     private static final String UNKNOWN_KEY = "UNKNOWN";
     private static final String UNKNOWN_NAME = "Unknown";
@@ -52,6 +55,13 @@ class TrendAggregator {
     private final Map<String, EntityStat> countries = new HashMap<>();
     private final Map<String, EntityStat> institutions = new HashMap<>();
     private final Map<String, EntityStat> authors = new HashMap<>();
+
+    /**
+     * To chuc nhom theo quoc gia cua chinh no, dung cho dropdown loc theo quoc gia o tab Institution. Khac voi
+     * institutions o tren: day la nhieu bang xep hang rieng biet, moi quoc gia mot bang, khong phai loc lai tu mot bang
+     * chung. Nho vay tap chi co nhieu quoc gia dong deu van ra dung top to chuc cua tung nuoc.
+     */
+    private final Map<String, Map<String, EntityStat>> institutionsByCountry = new HashMap<>();
 
     /**
      * Nhung bai chua tim ra quoc gia sau hai muc dau. Giu lai de resolvePending() xu ly mot the, nho vay chi phai goi
@@ -80,13 +90,13 @@ class TrendAggregator {
         List<OpenAlexWorksResponse.Authorship> authorships = work.authorships() == null ? List.of()
                 : work.authorships();
 
-        distribute(institutions, collectInstitutions(authorships), year);
+        addInstitutions(authorships, year);
         countAuthors(authorships, year);
         addCountries(authorships, year);
     }
 
     /**
-     * Muc 1 va 2 cua viec tim quoc gia. Khong ra thi de danh lai cho muc 3.
+     * Muc 1 va 2 cua viec tim quoc gia cua bai. Khong ra thi de danh lai cho muc 3.
      */
     private void addCountries(List<OpenAlexWorksResponse.Authorship> authorships, int year) {
         Map<String, String> found = collectCountries(authorships);
@@ -189,19 +199,54 @@ class TrendAggregator {
         return ids;
     }
 
-    private Map<String, String> collectInstitutions(List<OpenAlexWorksResponse.Authorship> authorships) {
-        Map<String, String> nameByKey = new LinkedHashMap<>();
+    /**
+     * Cong to chuc vao ca bang xep hang chung va bang xep hang rieng theo quoc gia cua chinh to chuc do.
+     * <p>
+     * Trong so giong het nhau o ca hai noi, chi khac cho gom: mot to chuc luon thuoc dung mot quoc gia (hoac Unknown
+     * neu OpenAlex khong ghi), nen khong can chia lai trong so theo quoc gia.
+     */
+    private void addInstitutions(List<OpenAlexWorksResponse.Authorship> authorships, int year) {
+        Map<String, InstitutionInfo> found = collectInstitutions(authorships);
+
+        if (found.isEmpty()) {
+            accumulate(institutions, UNKNOWN_KEY, UNKNOWN_NAME, year, 1d);
+            accumulateInCountry(UNKNOWN_KEY, UNKNOWN_KEY, UNKNOWN_NAME, year, 1d);
+            return;
+        }
+
+        double weight = 1d / found.size();
+        for (Map.Entry<String, InstitutionInfo> entry : found.entrySet()) {
+            String institutionId = entry.getKey();
+            InstitutionInfo info = entry.getValue();
+
+            accumulate(institutions, institutionId, info.name(), year, weight);
+
+            String countryKey = StringUtils.hasText(info.countryCode())
+                    ? info.countryCode().trim().toUpperCase(Locale.ROOT) : UNKNOWN_KEY;
+            accumulateInCountry(countryKey, institutionId, info.name(), year, weight);
+        }
+    }
+
+    private void accumulateInCountry(String countryKey, String institutionId, String institutionName, int year,
+            double weight) {
+        Map<String, EntityStat> bucket = institutionsByCountry.computeIfAbsent(countryKey, unused -> new HashMap<>());
+        accumulate(bucket, institutionId, institutionName, year, weight);
+    }
+
+    private Map<String, InstitutionInfo> collectInstitutions(List<OpenAlexWorksResponse.Authorship> authorships) {
+        Map<String, InstitutionInfo> infoById = new LinkedHashMap<>();
         for (OpenAlexWorksResponse.Authorship authorship : authorships) {
             if (authorship == null || authorship.institutions() == null) {
                 continue;
             }
             for (OpenAlexWorksResponse.Institution institution : authorship.institutions()) {
                 if (institution != null && StringUtils.hasText(institution.id())) {
-                    nameByKey.putIfAbsent(institution.id(), institution.displayName());
+                    infoById.putIfAbsent(institution.id(),
+                            new InstitutionInfo(institution.displayName(), institution.countryCode()));
                 }
             }
         }
-        return nameByKey;
+        return infoById;
     }
 
     /**
@@ -260,7 +305,8 @@ class TrendAggregator {
 
         return new JournalTrendResponse(openAlexId, issn, displayName, fromYear, toYear, inferUnknown, totalWorks,
                 countRealEntities(countries), countRealEntities(institutions), authors.size(), years, worksSeries,
-                topEntries(countries), topEntries(institutions), topEntries(authors), Instant.now());
+                topEntries(countries), topEntries(institutions), topInstitutionsByCountry(), topEntries(authors),
+                Instant.now());
     }
 
     /**
@@ -299,6 +345,39 @@ class TrendAggregator {
     }
 
     /**
+     * Nhom to chuc theo quoc gia cua chinh no, moi quoc gia mot bang xep hang rieng. Chi giu top
+     * TOP_INSTITUTION_COUNTRIES quoc gia co tong trong so lon nhat, moi quoc gia lai chi giu top TOP_ENTITIES to chuc.
+     * <p>
+     * Day la ly do khong the lay tu institutions o tren bang cach loc theo quoc gia: mot to chuc lon cua mot nuoc it
+     * bai co the khong lot vao top chung, nhung van la top cua rieng nuoc do.
+     */
+    private List<JournalTrendResponse.CountryInstitutions> topInstitutionsByCountry() {
+        List<Map.Entry<String, Map<String, EntityStat>>> sorted = new ArrayList<>(institutionsByCountry.entrySet());
+        sorted.sort(Comparator
+                .comparingDouble((Map.Entry<String, Map<String, EntityStat>> entry) -> totalWeight(entry.getValue()))
+                .reversed());
+
+        List<JournalTrendResponse.CountryInstitutions> result = new ArrayList<>();
+        for (Map.Entry<String, Map<String, EntityStat>> entry : sorted) {
+            if (result.size() >= CommonConstant.Journal.TOP_INSTITUTION_COUNTRIES) {
+                break;
+            }
+
+            String countryKey = entry.getKey();
+            String countryName = UNKNOWN_KEY.equals(countryKey) ? UNKNOWN_NAME : CountryResolver.nameOf(countryKey);
+            double total = totalWeight(entry.getValue());
+
+            result.add(new JournalTrendResponse.CountryInstitutions(countryKey, countryName, round2(total),
+                    topEntries(entry.getValue())));
+        }
+        return result;
+    }
+
+    private double totalWeight(Map<String, EntityStat> stats) {
+        return stats.values().stream().mapToDouble(stat -> stat.total).sum();
+    }
+
+    /**
      * OpenAlex tra id dang URL day du, chi giu lai phan ma cho gon.
      */
     private String shortId(String fullId) {
@@ -314,6 +393,9 @@ class TrendAggregator {
     }
 
     private record PendingWork(int year, Set<String> authorIds) {
+    }
+
+    private record InstitutionInfo(String name, String countryCode) {
     }
 
     private static final class EntityStat {

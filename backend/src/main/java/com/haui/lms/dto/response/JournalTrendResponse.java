@@ -8,6 +8,10 @@ import java.util.List;
 /**
  * Ket qua phan tich xu huong cua mot tap chi, du de ve ca ba tab quoc gia / to chuc / tac gia.
  * <p>
+ * institutionsByCountry da duoc nhom san theo quoc gia, frontend chi can render dropdown va bang tuong ung, khong phai
+ * tu loc lai tu danh sach institutions chung. Neu chi loc tu top chung thi tap chi co nhieu quoc gia dong deu se ra
+ * sai: mot to chuc thuc su lon cua mot nuoc co the khong lot vao top chung nhung van la top cua rieng nuoc do.
+ * <p>
  * Cach dem khong giong nhau giua cac tab, day la chu y quan trong khi hien thi:
  * <ul>
  * <li>Quoc gia va to chuc dung <b>fractional counting</b> theo cong thuc
@@ -47,11 +51,27 @@ public record JournalTrendResponse(@Schema(description = "Mã OpenAlex của t�
 
         @Schema(description = "Top tổ chức, fractional counting, giảm dần theo tổng") List<TrendEntry> institutions,
 
+        @Schema(description = "Top tổ chức của từng quốc gia, để frontend vẽ dropdown lọc theo quốc gia mà không phải tự nhóm lại. "
+                + "Khác với trường institutions ở trên: mỗi quốc gia có bộ top riêng của chính nó, không phải lọc lại từ top chung, "
+                + "nên tạp chí có nhiều quốc gia đồng đều vẫn ra đúng top tổ chức của từng nước") List<CountryInstitutions> institutionsByCountry,
+
         @Schema(description = "Top tác giả, presence counting, giảm dần theo số bài") List<TrendEntry> authors,
 
         @Schema(description = "Thời điểm hoàn tất phân tích") Instant fetchedAt) {
 
     public record YearCount(Integer year, Integer count) {
+    }
+
+    /**
+     * @param countryKey
+     *            ma quoc gia cua chinh to chuc, khong phai quoc gia cua tac gia
+     * @param totalWeight
+     *            tong trong so cua tat ca to chuc thuoc quoc gia nay, dung de sap xep quoc gia nao hien truoc
+     * @param institutions
+     *            top to chuc cua rieng quoc gia nay, giam dan theo trong so
+     */
+    public record CountryInstitutions(String countryKey, String countryName, Double totalWeight,
+            List<TrendEntry> institutions) {
     }
 
     /**

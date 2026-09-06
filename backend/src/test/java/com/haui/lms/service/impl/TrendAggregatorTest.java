@@ -86,6 +86,50 @@ class TrendAggregatorTest {
     }
 
     @Test
+    @DisplayName("To chuc duoc nhom theo quoc gia cua chinh no, khong phai quoc gia cua tac gia")
+    void institutionGroupedByOwnCountry() {
+        TrendAggregator aggregator = new TrendAggregator();
+
+        // Tac gia co quoc gia DE nhung lam viec tai to chuc dong tai IT: nhom phai theo IT
+        aggregator.add(work(2016,
+                new OpenAlexWorksResponse.Authorship(author("A1"),
+                        List.of(new OpenAlexWorksResponse.Institution("I1", "Test Institute", "IT")), List.of("DE"),
+                        List.of())));
+
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016, false);
+
+        assertEquals(1, response.institutionsByCountry().size());
+        JournalTrendResponse.CountryInstitutions group = response.institutionsByCountry().get(0);
+        assertEquals("IT", group.countryKey());
+        assertEquals("I1", group.institutions().get(0).key());
+    }
+
+    @Test
+    @DisplayName("To chuc khong co ma quoc gia duoc gom vao Unknown, khong lam anh huong quoc gia khac")
+    void institutionWithoutCountryGoesToUnknownBucket() {
+        TrendAggregator aggregator = new TrendAggregator();
+
+        aggregator.add(work(2016,
+                new OpenAlexWorksResponse.Authorship(author("A1"),
+                        List.of(new OpenAlexWorksResponse.Institution("I1", "Known Institute", "IN")), List.of("IN"),
+                        List.of())));
+        aggregator.add(work(2016,
+                new OpenAlexWorksResponse.Authorship(author("A2"),
+                        List.of(new OpenAlexWorksResponse.Institution("I2", "No Country Institute", null)),
+                        List.of("IN"), List.of())));
+
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016, false);
+
+        Map<String, JournalTrendResponse.CountryInstitutions> byKey = new java.util.HashMap<>();
+        response.institutionsByCountry().forEach(g -> byKey.put(g.countryKey(), g));
+
+        assertTrue(byKey.containsKey("IN"));
+        assertTrue(byKey.containsKey("UNKNOWN"));
+        assertEquals(1, byKey.get("IN").institutions().size());
+        assertEquals(1, byKey.get("UNKNOWN").institutions().size());
+    }
+
+    @Test
     @DisplayName("Tong cac quoc gia trong mot nam luon bang dung so bai cua nam do")
     void countryTotalEqualsWorkCount() {
         TrendAggregator aggregator = new TrendAggregator();

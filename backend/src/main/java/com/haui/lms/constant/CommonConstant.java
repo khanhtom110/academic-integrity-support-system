@@ -45,6 +45,10 @@ public final class CommonConstant {
         // Chi giu top N quoc gia / to chuc / tac gia, neu tra het thi response phinh len hang chuc MB
         public static final int TOP_ENTITIES = 20;
 
+        // So quoc gia duoc nhom rieng cho dropdown loc to chuc theo quoc gia. Thap hon TOP_ENTITIES vi day la so
+        // NHOM, moi nhom lai co toi da TOP_ENTITIES to chuc ben trong, tra het se rat nang.
+        public static final int TOP_INSTITUTION_COUNTRIES = 10;
+
         // Tap chi lon co the timeout khi phan trang sau. Gap 504 thi chia doi khoang ngay va thu lai,
         // toi da 4 lan tuc mot nam bi cat nho nhat con khoang 3 tuan.
         public static final int MAX_SPLIT_DEPTH = 4;
