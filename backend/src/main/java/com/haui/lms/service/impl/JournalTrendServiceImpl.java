@@ -5,6 +5,7 @@ import com.haui.lms.constant.CommonConstant;
 import com.haui.lms.constant.ErrorMessage;
 import com.haui.lms.dto.response.JournalTrendResponse;
 import com.haui.lms.dto.response.TrendJobResponse;
+import com.haui.lms.dto.response.openalex.OpenAlexAuthorsResponse;
 import com.haui.lms.dto.response.openalex.OpenAlexSourceResponse;
 import com.haui.lms.dto.response.openalex.OpenAlexWorksResponse;
 import com.haui.lms.exception.extended.AppException;
@@ -21,7 +22,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Year;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,6 +68,9 @@ public class JournalTrendServiceImpl implements JournalTrendService {
     @Value("${openalex.trends.result-ttl-days}")
     private long resultTtlDays;
 
+    @Value("${openalex.trends.infer-unknown-country}")
+    private boolean inferUnknownByDefault;
+
     @PreDestroy
     void shutdown() {
         executor.shutdownNow();
@@ -72,7 +81,7 @@ public class JournalTrendServiceImpl implements JournalTrendService {
     // ==========================================
 
     @Override
-    public TrendJobResponse createJob(String issn, Integer fromYear, Integer toYear) {
+    public TrendJobResponse createJob(String issn, Integer fromYear, Integer toYear, Boolean inferUnknown) {
         String normalizedIssn = normalizeIssn(issn);
 
         // Goi dong bo o day la co chu y: lookup theo ISSN khong ton credit, va nho no ma ISSN sai duoc bao 404 ngay
@@ -88,19 +97,21 @@ public class JournalTrendServiceImpl implements JournalTrendService {
             throw new AppException(400, ErrorMessage.Journal.INVALID_YEAR_RANGE);
         }
 
+        boolean infer = inferUnknown != null ? inferUnknown : inferUnknownByDefault;
+
         String jobId = UUID.randomUUID().toString();
-        String resultKey = resultKey(normalizedIssn, resolvedFrom, resolvedTo);
+        String resultKey = resultKey(normalizedIssn, resolvedFrom, resolvedTo, infer);
 
         // Da phan tich khoang nam nay roi thi tra ket qua luon, khong dot them credit
         if (cache.get(resultKey, JournalTrendResponse.class) != null) {
             TrendJobResponse cached = new TrendJobResponse(jobId, normalizedIssn, STATUS_COMPLETED, resolvedFrom,
-                    resolvedTo, null, null, 100, true, null, Instant.now(), Instant.now());
+                    resolvedTo, infer, null, null, 100, true, null, Instant.now(), Instant.now());
             saveJob(cached);
             return cached;
         }
 
-        TrendJobResponse job = new TrendJobResponse(jobId, normalizedIssn, STATUS_QUEUED, resolvedFrom, resolvedTo, 0,
-                null, 0, false, null, Instant.now(), null);
+        TrendJobResponse job = new TrendJobResponse(jobId, normalizedIssn, STATUS_QUEUED, resolvedFrom, resolvedTo,
+                infer, 0, null, 0, false, null, Instant.now(), null);
         saveJob(job);
 
         String sourceId = source.id();
@@ -133,7 +144,8 @@ public class JournalTrendServiceImpl implements JournalTrendService {
             throw new AppException(409, ErrorMessage.Journal.TREND_JOB_NOT_READY);
         }
 
-        JournalTrendResponse result = cache.get(resultKey(job.issn(), job.fromYear(), job.toYear()),
+        JournalTrendResponse result = cache.get(
+                resultKey(job.issn(), job.fromYear(), job.toYear(), Boolean.TRUE.equals(job.inferUnknown())),
                 JournalTrendResponse.class);
         if (result == null) {
             // Ket qua het han truoc khi client kip lay. Bao nhu job khong con de client tao lai.
@@ -147,8 +159,8 @@ public class JournalTrendServiceImpl implements JournalTrendService {
     // ==========================================
 
     private void runJob(TrendJobResponse job, String sourceId, String displayName, String resultKey) {
-        log.info("Trend job started. Job: {}, ISSN: {}, years: {}-{}", job.jobId(), job.issn(), job.fromYear(),
-                job.toYear());
+        log.info("Trend job started. Job: {}, ISSN: {}, years: {}-{}, inferUnknown: {}", job.jobId(), job.issn(),
+                job.fromYear(), job.toYear(), job.inferUnknown());
 
         TrendJobResponse running = withStatus(job, STATUS_RUNNING);
         saveJob(running);
@@ -166,22 +178,75 @@ public class JournalTrendServiceImpl implements JournalTrendService {
                 saveJob(running);
             }
 
+            inferMissingCountries(aggregator, Boolean.TRUE.equals(job.inferUnknown()));
+
             JournalTrendResponse result = aggregator.toResponse(shortId(sourceId), job.issn(), displayName,
-                    job.fromYear(), job.toYear());
+                    job.fromYear(), job.toYear(), Boolean.TRUE.equals(job.inferUnknown()));
             cache.put(resultKey, result, Duration.ofDays(resultTtlDays));
 
             saveJob(new TrendJobResponse(job.jobId(), job.issn(), STATUS_COMPLETED, job.fromYear(), job.toYear(),
-                    aggregator.getTotalWorks(), aggregator.getTotalWorks(), 100, false, null, job.createdAt(),
-                    Instant.now()));
+                    job.inferUnknown(), aggregator.getTotalWorks(), aggregator.getTotalWorks(), 100, false, null,
+                    job.createdAt(), Instant.now()));
 
             log.info("Trend job completed. Job: {}, works: {}", job.jobId(), aggregator.getTotalWorks());
 
         } catch (Exception e) {
             log.error("Trend job failed. Job: {}, ISSN: {}", job.jobId(), job.issn(), e);
             saveJob(new TrendJobResponse(job.jobId(), job.issn(), STATUS_FAILED, job.fromYear(), job.toYear(),
-                    running.processedWorks(), null, running.percent(), false, e.getMessage(), job.createdAt(),
-                    Instant.now()));
+                    job.inferUnknown(), running.processedWorks(), null, running.percent(), false, e.getMessage(),
+                    job.createdAt(), Instant.now()));
         }
+    }
+
+    /**
+     * Suy ra quoc gia cho nhung bai OpenAlex bo trong, bang noi cong tac gan nhat cua tac gia.
+     * <p>
+     * Tat suy luan thi van phai goi resolvePending de nhung bai do duoc don vao Unknown, neu khong tong se hut.
+     */
+    private void inferMissingCountries(TrendAggregator aggregator, boolean inferUnknown) {
+        Set<String> authorIds = aggregator.pendingAuthorIds();
+
+        if (!inferUnknown || authorIds.isEmpty()) {
+            aggregator.resolvePending(Map.of());
+            return;
+        }
+
+        log.info("Inferring country for {} authors with missing data", authorIds.size());
+        aggregator.resolvePending(fetchAuthorCountries(authorIds));
+    }
+
+    /**
+     * Tra quoc gia cua tac gia theo lo. Gop nhieu ma vao mot lan goi nen ca nghin tac gia cung chi ton vai chuc credit.
+     */
+    private Map<String, List<String>> fetchAuthorCountries(Set<String> authorIds) {
+        List<String> ids = new ArrayList<>(authorIds);
+        Map<String, List<String>> countryByAuthor = new HashMap<>();
+        int batchSize = CommonConstant.Journal.AUTHOR_LOOKUP_BATCH_SIZE;
+
+        for (int start = 0; start < ids.size(); start += batchSize) {
+            List<String> batch = ids.subList(start, Math.min(start + batchSize, ids.size()));
+
+            OpenAlexAuthorsResponse response = openAlexClient.fetchAuthors(batch);
+            if (response == null || response.results() == null) {
+                continue;
+            }
+
+            for (OpenAlexAuthorsResponse.Author author : response.results()) {
+                if (author == null || !StringUtils.hasText(author.id())) {
+                    continue;
+                }
+
+                List<String> codes = (author.lastKnownInstitutions() == null
+                        ? List.<OpenAlexAuthorsResponse.Institution> of() : author.lastKnownInstitutions()).stream()
+                                .map(OpenAlexAuthorsResponse.Institution::countryCode).filter(StringUtils::hasText)
+                                .distinct().toList();
+
+                if (!codes.isEmpty()) {
+                    countryByAuthor.put(shortId(author.id()), codes);
+                }
+            }
+        }
+        return countryByAuthor;
     }
 
     /**
@@ -269,13 +334,15 @@ public class JournalTrendServiceImpl implements JournalTrendService {
     }
 
     private TrendJobResponse withStatus(TrendJobResponse job, String status) {
-        return new TrendJobResponse(job.jobId(), job.issn(), status, job.fromYear(), job.toYear(), job.processedWorks(),
-                job.totalWorks(), job.percent(), job.fromCache(), job.error(), job.createdAt(), job.finishedAt());
+        return new TrendJobResponse(job.jobId(), job.issn(), status, job.fromYear(), job.toYear(), job.inferUnknown(),
+                job.processedWorks(), job.totalWorks(), job.percent(), job.fromCache(), job.error(), job.createdAt(),
+                job.finishedAt());
     }
 
     private TrendJobResponse withProgress(TrendJobResponse job, int processedWorks, int percent) {
-        return new TrendJobResponse(job.jobId(), job.issn(), job.status(), job.fromYear(), job.toYear(), processedWorks,
-                job.totalWorks(), percent, job.fromCache(), job.error(), job.createdAt(), job.finishedAt());
+        return new TrendJobResponse(job.jobId(), job.issn(), job.status(), job.fromYear(), job.toYear(),
+                job.inferUnknown(), processedWorks, job.totalWorks(), percent, job.fromCache(), job.error(),
+                job.createdAt(), job.finishedAt());
     }
 
     private void saveJob(TrendJobResponse job) {
@@ -286,7 +353,11 @@ public class JournalTrendServiceImpl implements JournalTrendService {
         return CommonConstant.Journal.CACHE_TREND_JOB_PREFIX + jobId;
     }
 
-    private String resultKey(String issn, int fromYear, int toYear) {
-        return CommonConstant.Journal.CACHE_TREND_PREFIX + issn + ":" + fromYear + "-" + toYear;
+    /**
+     * Cache key co ca co suy luan, vi bat va tat cho ra hai bo so lieu khac han nhau.
+     */
+    private String resultKey(String issn, int fromYear, int toYear, boolean inferUnknown) {
+        return CommonConstant.Journal.CACHE_TREND_PREFIX + issn + ":" + fromYear + "-" + toYear
+                + (inferUnknown ? ":inferred" : ":raw");
     }
 }

@@ -62,14 +62,17 @@ public class JournalController {
     @Operation(summary = "Bắt đầu phân tích xu hướng của một tạp chí", description = "Phân tích một tạp chí lớn phải kéo hàng trăm trang dữ liệu từ OpenAlex nên "
             + "không trả kết quả ngay được. Endpoint này chỉ tạo job và trả về jobId, frontend dùng jobId để hỏi tiến độ. "
             + "Mặc định chỉ phân tích 25 năm gần nhất vì mỗi năm là ít nhất một lần gọi OpenAlex. "
+            + "Tham số inferUnknown bật/tắt việc suy luận quốc gia cho những bài OpenAlex bỏ trống: bật thì số liệu đầy đủ hơn "
+            + "nhưng là ước lượng, tắt thì phần thiếu nằm hết ở mục Unknown. Hai chế độ được cache riêng nên so sánh được trực tiếp. "
             + "Nếu khoảng năm này đã được phân tích trước đó thì job trả về COMPLETED ngay lập tức.")
     @PostMapping(UrlConstant.Journal.TRENDS)
     public ResponseEntity<ApiResponse<TrendJobResponse>> createTrendJob(
             @Parameter(description = "Mã ISSN, ví dụ 2002-441X", example = "2002-441X") @PathVariable("issn") String issn,
             @Parameter(description = "Năm bắt đầu, bỏ trống thì lấy 25 năm gần nhất") @RequestParam(value = "fromYear", required = false) Integer fromYear,
-            @Parameter(description = "Năm kết thúc, bỏ trống thì lấy năm xuất bản gần nhất của tạp chí") @RequestParam(value = "toYear", required = false) Integer toYear) {
+            @Parameter(description = "Năm kết thúc, bỏ trống thì lấy năm xuất bản gần nhất của tạp chí") @RequestParam(value = "toYear", required = false) Integer toYear,
+            @Parameter(description = "Suy luận quốc gia cho những bài OpenAlex bỏ trống. Bỏ trống thì lấy theo cấu hình") @RequestParam(value = "inferUnknown", required = false) Boolean inferUnknown) {
 
-        TrendJobResponse job = journalTrendService.createJob(issn, fromYear, toYear);
+        TrendJobResponse job = journalTrendService.createJob(issn, fromYear, toYear, inferUnknown);
         return ResponseEntity.accepted()
                 .body(ApiResponse.accepted(SuccessMessage.Journal.CREATE_TREND_JOB_SUCCESS, job));
     }

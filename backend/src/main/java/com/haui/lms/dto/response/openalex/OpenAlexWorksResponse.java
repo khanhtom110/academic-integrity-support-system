@@ -34,9 +34,15 @@ public record OpenAlexWorksResponse(Meta meta, List<Work> results) {
 
     /**
      * Mot dong tac gia trong bai bao. Mot tac gia co the thuoc nhieu to chuc va nhieu quoc gia cung luc.
+     *
+     * @param rawAffiliationStrings
+     *            chuoi don vi cong tac nguyen ban in tren bai. Nhieu bai co truong countries rong nhung chuoi nay lai
+     *            ghi ro ten nuoc, vi du "...Mumbai, 400032, India", nen day la nguon suy luan chinh xac nhat vi no gan
+     *            dung thoi diem bai duoc xuat ban.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Authorship(Author author, List<Institution> institutions, List<String> countries) {
+    public record Authorship(Author author, List<Institution> institutions, List<String> countries,
+            @JsonProperty("raw_affiliation_strings") List<String> rawAffiliationStrings) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

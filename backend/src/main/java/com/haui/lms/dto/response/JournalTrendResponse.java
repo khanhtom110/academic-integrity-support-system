@@ -29,6 +29,8 @@ public record JournalTrendResponse(@Schema(description = "Mã OpenAlex của t�
 
         @Schema(description = "Năm kết thúc phân tích") Integer toYear,
 
+        @Schema(description = "Có suy luận quốc gia cho những bài OpenAlex bỏ trống hay không. Bật thì số liệu đầy đủ hơn nhưng là ước lượng, tắt thì phần thiếu nằm hết ở mục Unknown") Boolean inferUnknown,
+
         @Schema(description = "Tổng số bài đã xử lý trong khoảng năm trên") Integer totalWorks,
 
         @Schema(description = "Số quốc gia khác nhau xuất hiện") Integer uniqueCountries,

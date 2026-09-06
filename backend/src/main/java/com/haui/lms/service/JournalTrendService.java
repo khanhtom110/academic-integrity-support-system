@@ -19,8 +19,10 @@ public interface JournalTrendService {
      *            nam bat dau, null thi tu suy ra tu khoang mac dinh
      * @param toYear
      *            nam ket thuc, null thi lay nam xuat ban gan nhat cua tap chi
+     * @param inferUnknown
+     *            co suy ra quoc gia cho nhung bai OpenAlex bo trong hay khong, null thi lay theo cau hinh
      */
-    TrendJobResponse createJob(String issn, Integer fromYear, Integer toYear);
+    TrendJobResponse createJob(String issn, Integer fromYear, Integer toYear, Boolean inferUnknown);
 
     /**
      * Hoi trang thai va tien do cua mot lan phan tich.

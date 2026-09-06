@@ -18,6 +18,8 @@ public record TrendJobResponse(@Schema(description = "Mã job, dùng để hỏi
 
         @Schema(description = "Năm kết thúc") Integer toYear,
 
+        @Schema(description = "Có suy luận quốc gia cho những bài OpenAlex bỏ trống hay không") Boolean inferUnknown,
+
         @Schema(description = "Số bài đã xử lý") Integer processedWorks,
 
         @Schema(description = "Tổng số bài, chỉ có khi status là COMPLETED") Integer totalWorks,

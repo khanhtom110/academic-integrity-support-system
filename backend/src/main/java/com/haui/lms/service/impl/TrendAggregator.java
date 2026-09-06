@@ -19,29 +19,31 @@ import java.util.Set;
 /**
  * Gop du lieu bai bao thanh so lieu xu huong theo quoc gia, to chuc va tac gia.
  * <p>
- * Doi tuong nay <b>co trang thai va khong an toan da luong</b>: moi lan phan tich phai tao mot instance rieng. Cach
- * dung la goi add() cho tung bai roi goi toResponse() mot lan duy nhat o cuoi.
+ * Doi tuong nay <b>co trang thai va khong an toan da luong</b>: moi lan phan tich phai tao mot instance rieng. Trinh tu
+ * dung la goi add() cho tung bai, roi resolvePending() mot lan, roi toResponse().
  * <p>
  * Cach dem lam dung theo journaltrends.com, hai kieu khac nhau chay song song:
  * <ul>
- * <li><b>Fractional</b> cho quoc gia va to chuc, theo cong thuc <code>1 / so quoc gia rieng biet cua bai</code>. Luu y
- * la chia theo so quoc gia <i>rieng biet trong ca bai</i>, khong phai theo so dong tac gia: mot bai co 4 tac gia An Do
- * va 1 tac gia Duc thi moi nuoc duoc 0.5, chu khong phai 0.8 va 0.2.</li>
+ * <li><b>Fractional</b> cho quoc gia va to chuc, theo cong thuc <code>1 / so quoc gia rieng biet cua bai</code>. Chia
+ * theo so quoc gia <i>rieng biet trong ca bai</i>, khong phai theo so dong tac gia: mot bai co 4 tac gia An Do va 1 tac
+ * gia Duc thi moi nuoc duoc 0.5, chu khong phai 0.8 va 0.2.</li>
  * <li><b>Presence</b> cho tac gia. Moi tac gia duoc tinh tron 1 cho moi bai ho tham gia.</li>
  * </ul>
  * <p>
- * Bai khong co thong tin quoc gia hoac to chuc duoc gom vao nhom <b>Unknown</b> chu khong bi bo di. Nho vay tong cua
- * cac quoc gia trong mot nam luon bang dung so bai cua nam do, va frontend moi tinh duoc phan tram cho chinh xac. Neu
- * bo di thi mau so bi hut va moi ty le deu bi thoi phong.
+ * Tong cua cac quoc gia trong mot nam luon bang dung so bai cua nam do, nho nhom <b>Unknown</b> don nhung bai khong xac
+ * dinh duoc. Neu bo di thi mau so bi hut va moi ty le phan tram deu bi thoi phong.
  * <p>
- * Frontend co the tu suy ra nhom "Other" cho phan ngoai top N: lay so bai cua nam tru di tong cac muc duoc tra ve.
+ * Quoc gia duoc tim theo ba muc, dung dan theo do tin cay giam dan:
+ * <ol>
+ * <li>Truong countries do OpenAlex cung cap</li>
+ * <li>Chuoi don vi cong tac in tren chinh bai bao, chuan thoi diem xuat ban</li>
+ * <li>Noi cong tac gan nhat cua tac gia, chi dung khi bat suy luan va can goi them API</li>
+ * </ol>
  */
 class TrendAggregator {
 
     /**
-     * Nhom danh cho bai ma OpenAlex khong co thong tin quoc gia hoac to chuc.
-     * <p>
-     * journaltrends con co them buoc suy luan de doan quoc gia cho nhung bai nay (nut "Infer Unknown"), o day chua lam.
+     * Nhom danh cho bai khong xac dinh duoc quoc gia hoac to chuc.
      */
     private static final String UNKNOWN_KEY = "UNKNOWN";
     private static final String UNKNOWN_NAME = "Unknown";
@@ -50,6 +52,12 @@ class TrendAggregator {
     private final Map<String, EntityStat> countries = new HashMap<>();
     private final Map<String, EntityStat> institutions = new HashMap<>();
     private final Map<String, EntityStat> authors = new HashMap<>();
+
+    /**
+     * Nhung bai chua tim ra quoc gia sau hai muc dau. Giu lai de resolvePending() xu ly mot the, nho vay chi phai goi
+     * API tra tac gia dung mot lan cho ca tap chi thay vi goi rai rac tung bai.
+     */
+    private final List<PendingWork> pending = new ArrayList<>();
 
     private int totalWorks;
 
@@ -72,14 +80,68 @@ class TrendAggregator {
         List<OpenAlexWorksResponse.Authorship> authorships = work.authorships() == null ? List.of()
                 : work.authorships();
 
-        distribute(countries, collectCountries(authorships), year);
         distribute(institutions, collectInstitutions(authorships), year);
         countAuthors(authorships, year);
+        addCountries(authorships, year);
     }
 
     /**
-     * Gom tat ca quoc gia rieng biet xuat hien trong ca bai. Dung LinkedHashMap de thu tu on dinh, tien khi doc log.
+     * Muc 1 va 2 cua viec tim quoc gia. Khong ra thi de danh lai cho muc 3.
      */
+    private void addCountries(List<OpenAlexWorksResponse.Authorship> authorships, int year) {
+        Map<String, String> found = collectCountries(authorships);
+
+        if (found.isEmpty()) {
+            found = collectFromAffiliations(authorships);
+        }
+
+        if (found.isEmpty()) {
+            pending.add(new PendingWork(year, collectAuthorIds(authorships)));
+            return;
+        }
+
+        distribute(countries, found, year);
+    }
+
+    /**
+     * Muc 3: don not nhung bai con lai bang quoc gia suy ra tu tac gia.
+     * <p>
+     * Truyen map rong nghia la khong suy luan, khi do moi bai con lai deu roi vao Unknown. Goi lai lan nua khong gay
+     * hai vi danh sach cho da duoc don sach.
+     *
+     * @param countryByAuthorId
+     *            ma tac gia rut gon, vi du A5061775322, tro toi danh sach ma quoc gia
+     */
+    void resolvePending(Map<String, List<String>> countryByAuthorId) {
+        for (PendingWork work : pending) {
+            Map<String, String> found = new LinkedHashMap<>();
+
+            for (String authorId : work.authorIds()) {
+                for (String code : countryByAuthorId.getOrDefault(authorId, List.of())) {
+                    if (StringUtils.hasText(code)) {
+                        String normalized = code.trim().toUpperCase(Locale.ROOT);
+                        found.putIfAbsent(normalized, CountryResolver.nameOf(normalized));
+                    }
+                }
+            }
+
+            // found rong thi distribute() tu dong don vao Unknown
+            distribute(countries, found, work.year());
+        }
+        pending.clear();
+    }
+
+    /**
+     * Ma tac gia cua nhung bai chua xac dinh duoc quoc gia, de ben goi tra theo lo.
+     */
+    Set<String> pendingAuthorIds() {
+        Set<String> ids = new LinkedHashSet<>();
+        for (PendingWork work : pending) {
+            ids.addAll(work.authorIds());
+        }
+        return ids;
+    }
+
     private Map<String, String> collectCountries(List<OpenAlexWorksResponse.Authorship> authorships) {
         Map<String, String> nameByKey = new LinkedHashMap<>();
         for (OpenAlexWorksResponse.Authorship authorship : authorships) {
@@ -89,11 +151,42 @@ class TrendAggregator {
             for (String code : authorship.countries()) {
                 if (StringUtils.hasText(code)) {
                     String normalized = code.trim().toUpperCase(Locale.ROOT);
-                    nameByKey.putIfAbsent(normalized, countryName(normalized));
+                    nameByKey.putIfAbsent(normalized, CountryResolver.nameOf(normalized));
                 }
             }
         }
         return nameByKey;
+    }
+
+    /**
+     * Doc ten nuoc tu chuoi don vi cong tac in tren bai. Nguon nay dang tin hon viec tra tac gia vi no gan dung thoi
+     * diem xuat ban, trong khi tac gia co the da chuyen noi lam viec.
+     */
+    private Map<String, String> collectFromAffiliations(List<OpenAlexWorksResponse.Authorship> authorships) {
+        Map<String, String> nameByKey = new LinkedHashMap<>();
+        for (OpenAlexWorksResponse.Authorship authorship : authorships) {
+            if (authorship == null || authorship.rawAffiliationStrings() == null) {
+                continue;
+            }
+            for (String raw : authorship.rawAffiliationStrings()) {
+                String code = CountryResolver.codeFromAffiliation(raw);
+                if (code != null) {
+                    nameByKey.putIfAbsent(code, CountryResolver.nameOf(code));
+                }
+            }
+        }
+        return nameByKey;
+    }
+
+    private Set<String> collectAuthorIds(List<OpenAlexWorksResponse.Authorship> authorships) {
+        Set<String> ids = new LinkedHashSet<>();
+        for (OpenAlexWorksResponse.Authorship authorship : authorships) {
+            OpenAlexWorksResponse.Author author = authorship == null ? null : authorship.author();
+            if (author != null && StringUtils.hasText(author.id())) {
+                ids.add(shortId(author.id()));
+            }
+        }
+        return ids;
     }
 
     private Map<String, String> collectInstitutions(List<OpenAlexWorksResponse.Authorship> authorships) {
@@ -155,13 +248,17 @@ class TrendAggregator {
         stat.byYear.merge(year, weight, Double::sum);
     }
 
-    JournalTrendResponse toResponse(String openAlexId, String issn, String displayName, int fromYear, int toYear) {
+    JournalTrendResponse toResponse(String openAlexId, String issn, String displayName, int fromYear, int toYear,
+            boolean inferUnknown) {
+        // Bao hiem: neu ben goi quen resolvePending thi don not vao Unknown, tong van phai dung
+        resolvePending(Map.of());
+
         List<Integer> years = worksByYear.keySet().stream().sorted().toList();
 
         List<JournalTrendResponse.YearCount> worksSeries = years.stream()
                 .map(year -> new JournalTrendResponse.YearCount(year, worksByYear.get(year))).toList();
 
-        return new JournalTrendResponse(openAlexId, issn, displayName, fromYear, toYear, totalWorks,
+        return new JournalTrendResponse(openAlexId, issn, displayName, fromYear, toYear, inferUnknown, totalWorks,
                 countRealEntities(countries), countRealEntities(institutions), authors.size(), years, worksSeries,
                 topEntries(countries), topEntries(institutions), topEntries(authors), Instant.now());
     }
@@ -202,15 +299,6 @@ class TrendAggregator {
     }
 
     /**
-     * Doi ma ISO sang ten quoc gia bang thu vien chuan, khong can goi them API.
-     */
-    private String countryName(String code) {
-        String name = Locale.of("", code).getDisplayCountry(Locale.ENGLISH);
-        // getDisplayCountry tra lai chinh ma do neu khong nhan ra
-        return StringUtils.hasText(name) && !name.equals(code) ? name : code;
-    }
-
-    /**
      * OpenAlex tra id dang URL day du, chi giu lai phan ma cho gon.
      */
     private String shortId(String fullId) {
@@ -223,6 +311,9 @@ class TrendAggregator {
 
     private double round2(double value) {
         return Math.round(value * 100d) / 100d;
+    }
+
+    private record PendingWork(int year, Set<String> authorIds) {
     }
 
     private static final class EntityStat {

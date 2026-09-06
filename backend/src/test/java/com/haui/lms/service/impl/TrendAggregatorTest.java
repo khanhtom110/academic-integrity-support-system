@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,13 +35,51 @@ class TrendAggregatorTest {
     }
 
     @Test
-    @DisplayName("Bai khong co quoc gia duoc gom vao Unknown thay vi bi bo di")
-    void missingCountryGoesToUnknown() {
+    @DisplayName("Khong co countries thi doc ten nuoc tu chuoi don vi cong tac tren bai")
+    void fallsBackToRawAffiliation() {
+        TrendAggregator aggregator = new TrendAggregator();
+
+        // Truong hop that gap trong du lieu: countries rong nhung dia chi ghi ro ten nuoc
+        aggregator.add(work(2016, affiliated("A1",
+                "Department of Physics, The Institute of Science, 15 Madam Cama Road, Mumbai, 400032, India")));
+
+        assertEquals(1.0, totalOf(aggregator, "IN"), DELTA);
+        assertEquals(0.0, totalOf(aggregator, "UNKNOWN"), DELTA);
+    }
+
+    @Test
+    @DisplayName("Ten thanh pho trung ten nuoc khong bi bat nham vi chi quet cuoi chuoi")
+    void doesNotMatchCountryNameInTheMiddle() {
+        TrendAggregator aggregator = new TrendAggregator();
+
+        aggregator.add(work(2016, affiliated("A1", "School of Medicine, Atlanta, Georgia, USA")));
+
+        assertEquals(1.0, totalOf(aggregator, "US"), DELTA);
+        assertEquals(0.0, totalOf(aggregator, "GE"), DELTA);
+    }
+
+    @Test
+    @DisplayName("Bat suy luan thi quoc gia duoc lay tu noi cong tac cua tac gia")
+    void inferCountryFromAuthors() {
+        TrendAggregator aggregator = new TrendAggregator();
+        aggregator.add(work(2016, authorship("A1")));
+
+        aggregator.resolvePending(Map.of("A1", List.of("IN")));
+
+        assertEquals(1.0, totalOf(aggregator, "IN"), DELTA);
+        assertEquals(0.0, totalOf(aggregator, "UNKNOWN"), DELTA);
+    }
+
+    @Test
+    @DisplayName("Tat suy luan thi bai thieu quoc gia roi vao Unknown thay vi bi bo di")
+    void missingCountryGoesToUnknownWhenNotInferring() {
         TrendAggregator aggregator = new TrendAggregator();
 
         aggregator.add(work(2016, authorship("A1", "IN")));
         aggregator.add(work(2016, authorship("A2")));
         aggregator.add(work(2016, authorship("A3")));
+
+        aggregator.resolvePending(Map.of());
 
         assertEquals(1.0, totalOf(aggregator, "IN"), DELTA);
         assertEquals(2.0, totalOf(aggregator, "UNKNOWN"), DELTA);
@@ -56,14 +95,11 @@ class TrendAggregatorTest {
         aggregator.add(work(2016, authorship("A4")));
         aggregator.add(work(2017, authorship("A5", "US", "JP")));
 
-        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2017);
-
-        double year2016 = sumForYear(response, 2016);
-        double year2017 = sumForYear(response, 2017);
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2017, false);
 
         // Neu mau so nay sai thi che do "Stacked %" tren frontend se thoi phong moi ty le
-        assertEquals(3.0, year2016, DELTA);
-        assertEquals(1.0, year2017, DELTA);
+        assertEquals(3.0, sumForYear(response, 2016), DELTA);
+        assertEquals(1.0, sumForYear(response, 2017), DELTA);
         assertEquals(4, response.totalWorks());
     }
 
@@ -75,7 +111,7 @@ class TrendAggregatorTest {
         aggregator.add(work(2016, authorship("A1", "IN")));
         aggregator.add(work(2016, authorship("A2")));
 
-        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016);
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016, false);
         assertEquals(1, response.uniqueCountries());
     }
 
@@ -86,11 +122,22 @@ class TrendAggregatorTest {
 
         aggregator.add(work(2016, authorship("A1", "IN"), authorship("A1", "DE"), authorship("A2", "IN")));
 
-        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016);
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016, false);
 
         assertEquals(2, response.uniqueAuthors());
         assertTrue(response.authors().stream().allMatch(entry -> Math.abs(entry.total() - 1.0) < DELTA),
                 "moi tac gia phai duoc tinh dung 1 cho bai nay");
+    }
+
+    @Test
+    @DisplayName("Quen goi resolvePending thi toResponse van don not vao Unknown, tong khong duoc hut")
+    void toResponseFlushesPendingWorks() {
+        TrendAggregator aggregator = new TrendAggregator();
+        aggregator.add(work(2016, authorship("A1")));
+
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016, false);
+
+        assertEquals(1.0, sumForYear(response, 2016), DELTA);
     }
 
     @Test
@@ -112,12 +159,23 @@ class TrendAggregatorTest {
     }
 
     private OpenAlexWorksResponse.Authorship authorship(String authorId, String... countryCodes) {
-        OpenAlexWorksResponse.Author author = new OpenAlexWorksResponse.Author(authorId, "Author " + authorId);
-        return new OpenAlexWorksResponse.Authorship(author, List.of(), Arrays.asList(countryCodes));
+        return new OpenAlexWorksResponse.Authorship(author(authorId), List.of(), Arrays.asList(countryCodes),
+                List.of());
+    }
+
+    /**
+     * Dong tac gia khong co countries nhung co chuoi dia chi nguyen ban.
+     */
+    private OpenAlexWorksResponse.Authorship affiliated(String authorId, String rawAffiliation) {
+        return new OpenAlexWorksResponse.Authorship(author(authorId), List.of(), List.of(), List.of(rawAffiliation));
+    }
+
+    private OpenAlexWorksResponse.Author author(String authorId) {
+        return new OpenAlexWorksResponse.Author(authorId, "Author " + authorId);
     }
 
     private double totalOf(TrendAggregator aggregator, String countryKey) {
-        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016);
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2016, false);
         return response.countries().stream().filter(entry -> entry.key().equals(countryKey))
                 .mapToDouble(JournalTrendResponse.TrendEntry::total).sum();
     }

@@ -48,6 +48,10 @@ public final class CommonConstant {
         // Tap chi lon co the timeout khi phan trang sau. Gap 504 thi chia doi khoang ngay va thu lai,
         // toi da 4 lan tuc mot nam bi cat nho nhat con khoang 3 tuan.
         public static final int MAX_SPLIT_DEPTH = 4;
+
+        // So tac gia tra moi lan khi suy ra quoc gia. Gop nhieu ma vao mot lan goi cho re,
+        // nhung URL dai qua thi OpenAlex tu choi nen giu o muc vua phai.
+        public static final int AUTHOR_LOOKUP_BATCH_SIZE = 50;
     }
 
     public static final class User {

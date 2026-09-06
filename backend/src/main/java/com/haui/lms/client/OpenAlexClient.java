@@ -2,6 +2,7 @@ package com.haui.lms.client;
 
 import com.haui.lms.constant.CommonConstant;
 import com.haui.lms.constant.ErrorMessage;
+import com.haui.lms.dto.response.openalex.OpenAlexAuthorsResponse;
 import com.haui.lms.dto.response.openalex.OpenAlexAutocompleteResponse;
 import com.haui.lms.dto.response.openalex.OpenAlexSourceResponse;
 import com.haui.lms.dto.response.openalex.OpenAlexWorksResponse;
@@ -24,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Lop duy nhat trong he thong noi chuyen truc tiep voi OpenAlex. Tach rieng de neu sau nay doi nguon du lieu thi chi
@@ -49,6 +51,11 @@ public class OpenAlexClient {
      * mot tap chi lon ve se mat vai tram MB.
      */
     private static final String WORKS_SELECT_FIELDS = "id,publication_year,authorships";
+
+    /**
+     * Chi can noi cong tac gan nhat de biet quoc gia cua tac gia.
+     */
+    private static final String AUTHORS_SELECT_FIELDS = "id,last_known_institutions";
 
     private final RestTemplate restTemplate;
 
@@ -139,6 +146,34 @@ public class OpenAlexClient {
 
         } catch (RestClientException e) {
             log.error("OpenAlex works fetch failed. Source: {}, range: {} to {}", sourceId, fromDate, toDate, e);
+            throw new AppException(503, ErrorMessage.Journal.OPENALEX_UNAVAILABLE);
+        }
+    }
+
+    /**
+     * Tra noi cong tac gan nhat cua mot lo tac gia, dung de suy ra quoc gia cho nhung bai ma OpenAlex bo trong truong
+     * countries.
+     * <p>
+     * OpenAlex cho gop nhieu ma vao mot lan goi bang filter=openalex_id:A1|A2|A3, nen ca lo chi ton 1 credit thay vi
+     * moi tac gia mot lan goi. Ben goi phai tu chia lo cho URL khong qua dai.
+     */
+    public OpenAlexAuthorsResponse fetchAuthors(List<String> authorIds) {
+        String filter = "openalex_id:" + String.join("|", authorIds);
+
+        URI uri = UriComponentsBuilder.fromUriString(baseUrl + "/authors").queryParam("filter", filter)
+                .queryParam("select", AUTHORS_SELECT_FIELDS)
+                .queryParam("per-page", CommonConstant.Journal.WORKS_PAGE_SIZE).queryParam("mailto", mailto).build()
+                .encode().toUri();
+
+        try {
+            return exchange(uri, OpenAlexAuthorsResponse.class);
+
+        } catch (HttpClientErrorException.TooManyRequests e) {
+            log.error("OpenAlex daily quota exhausted while resolving authors", e);
+            throw new AppException(429, ErrorMessage.Journal.RATE_LIMIT_EXCEEDED);
+
+        } catch (RestClientException e) {
+            log.error("OpenAlex author lookup failed for {} authors", authorIds.size(), e);
             throw new AppException(503, ErrorMessage.Journal.OPENALEX_UNAVAILABLE);
         }
     }
