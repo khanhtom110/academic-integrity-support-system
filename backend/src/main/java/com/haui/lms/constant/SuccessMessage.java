@@ -14,6 +14,9 @@ public class SuccessMessage {
     public static class Journal {
         public static final String SEARCH_SUCCESS = "Journals retrieved successfully";
         public static final String GET_DETAIL_SUCCESS = "Journal detail retrieved successfully";
+        public static final String CREATE_TREND_JOB_SUCCESS = "Trend analysis job created successfully";
+        public static final String GET_TREND_JOB_SUCCESS = "Trend job status retrieved successfully";
+        public static final String GET_TREND_RESULT_SUCCESS = "Trend analysis result retrieved successfully";
     }
 
     public static class User {

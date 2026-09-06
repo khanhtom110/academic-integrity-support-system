@@ -51,6 +51,12 @@ public class UrlConstant {
         public static final String SEARCH = PREFIX + "/search";
         public static final String DETAIL = PREFIX + "/{issn}";
 
+        // Phan tich xu huong chay nen nen phai tach ba buoc: tao job, hoi tien do, lay ket qua.
+        // Dat job duoi "/trend-jobs" thay vi "/trends" de khong dam voi pattern "/{issn}/trends".
+        public static final String TRENDS = PREFIX + "/{issn}/trends";
+        public static final String TREND_JOB = PREFIX + "/trend-jobs/{jobId}";
+        public static final String TREND_RESULT = PREFIX + "/trend-jobs/{jobId}/result";
+
         private Journal() {
         }
     }

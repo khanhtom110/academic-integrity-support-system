@@ -12,11 +12,10 @@ import com.haui.lms.service.JournalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import tools.jackson.databind.ObjectMapper;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -33,8 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class JournalServiceImpl implements JournalService {
 
     private final OpenAlexClient openAlexClient;
-    private final RedisTemplate<String, String> redisTemplate;
-    private final ObjectMapper objectMapper;
+    private final RedisJsonStore cache;
 
     @Value("${openalex.cache.detail-ttl-days}")
     private long detailTtlDays;
@@ -52,7 +49,7 @@ public class JournalServiceImpl implements JournalService {
 
         String cacheKey = CommonConstant.Journal.CACHE_SEARCH_PREFIX + keyword.toLowerCase(Locale.ROOT);
 
-        List<JournalSearchResponse> cached = readListFromCache(cacheKey);
+        List<JournalSearchResponse> cached = cache.getList(cacheKey, JournalSearchResponse[].class);
         if (cached != null) {
             return cached;
         }
@@ -60,7 +57,7 @@ public class JournalServiceImpl implements JournalService {
         OpenAlexAutocompleteResponse response = openAlexClient.autocompleteSources(keyword);
         List<JournalSearchResponse> results = toSearchResults(response);
 
-        writeToCache(cacheKey, results, searchTtlHours, TimeUnit.HOURS);
+        cache.put(cacheKey, results, Duration.ofHours(searchTtlHours));
         return results;
     }
 
@@ -74,7 +71,7 @@ public class JournalServiceImpl implements JournalService {
 
         String cacheKey = CommonConstant.Journal.CACHE_DETAIL_PREFIX + normalizedIssn;
 
-        JournalDetailResponse cached = readFromCache(cacheKey, JournalDetailResponse.class);
+        JournalDetailResponse cached = cache.get(cacheKey, JournalDetailResponse.class);
         if (cached != null) {
             return cached;
         }
@@ -86,7 +83,7 @@ public class JournalServiceImpl implements JournalService {
 
         JournalDetailResponse detail = toDetailResponse(source);
 
-        writeToCache(cacheKey, detail, detailTtlDays, TimeUnit.DAYS);
+        cache.put(cacheKey, detail, Duration.ofDays(detailTtlDays));
         return detail;
     }
 
@@ -219,43 +216,5 @@ public class JournalServiceImpl implements JournalService {
 
     private double round2(double value) {
         return Math.round(value * 100d) / 100d;
-    }
-
-    // ==========================================
-    // Cache
-    // ==========================================
-
-    private <T> T readFromCache(String key, Class<T> type) {
-        try {
-            String json = redisTemplate.opsForValue().get(key);
-            return json == null ? null : objectMapper.readValue(json, type);
-        } catch (Exception e) {
-            // Cache hong thi coi nhu chua co, van goi API binh thuong
-            log.warn("Failed to read cache. Key: {}", key, e);
-            return null;
-        }
-    }
-
-    private List<JournalSearchResponse> readListFromCache(String key) {
-        try {
-            String json = redisTemplate.opsForValue().get(key);
-            if (json == null) {
-                return null;
-            }
-            JournalSearchResponse[] array = objectMapper.readValue(json, JournalSearchResponse[].class);
-            return List.of(array);
-        } catch (Exception e) {
-            log.warn("Failed to read cache. Key: {}", key, e);
-            return null;
-        }
-    }
-
-    private void writeToCache(String key, Object value, long ttl, TimeUnit unit) {
-        try {
-            redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(value), ttl, unit);
-        } catch (Exception e) {
-            // Khong ghi duoc cache thi bo qua, khong lam hong request cua nguoi dung
-            log.warn("Failed to write cache. Key: {}", key, e);
-        }
     }
 }

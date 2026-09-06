@@ -72,6 +72,10 @@ public final class ErrorMessage {
         public static final String OPENALEX_UNAVAILABLE = "Cannot reach the OpenAlex data source at the moment. Please try again later.";
         public static final String SEARCH_QUERY_TOO_SHORT = "Please enter at least 2 characters to search.";
         public static final String RATE_LIMIT_EXCEEDED = "The daily OpenAlex query quota has been used up. It will reset at midnight UTC (7:00 AM Vietnam time).";
+        public static final String TREND_JOB_NOT_FOUND = "The analysis job does not exist or has expired. Please start a new analysis.";
+        public static final String TREND_JOB_NOT_READY = "The analysis is still running. Check the job status and request the result once it is completed.";
+        public static final String TREND_JOB_FAILED = "The analysis could not be completed: ";
+        public static final String INVALID_YEAR_RANGE = "Invalid year range: fromYear must not be greater than toYear.";
     }
 
     // Upload Errors
