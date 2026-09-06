@@ -1,0 +1,16 @@
+[Unit]
+Description=LMS Spring Boot backend
+After=network.target
+
+[Service]
+Type=simple
+User=lms
+WorkingDirectory=/opt/lms
+EnvironmentFile=/opt/lms/.env
+ExecStart=/usr/bin/java -jar /opt/lms/lms.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
