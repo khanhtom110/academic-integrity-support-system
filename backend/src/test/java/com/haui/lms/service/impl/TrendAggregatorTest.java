@@ -228,6 +228,24 @@ class TrendAggregatorTest {
     }
 
     @Test
+    @DisplayName("contentMixLabels giam dan theo tong tren toan khoang nam, khong phai theo tung nam rieng le")
+    void contentMixLabelsSortedByOverallTotal() {
+        TrendAggregator aggregator = new TrendAggregator();
+
+        // Nam 2016 editorial nhieu hon article, nhung tinh ca hai nam thi article van nhieu hon
+        aggregator.add(new OpenAlexWorksResponse.Work("W1", 2016, "editorial", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W2", 2016, "editorial", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W3", 2016, "article", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W4", 2017, "article", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W5", 2017, "article", List.of()));
+        aggregator.add(new OpenAlexWorksResponse.Work("W6", 2017, "paratext", List.of()));
+
+        JournalTrendResponse response = aggregator.toResponse("S1", "1234-5678", "Test Journal", 2016, 2017, false);
+
+        assertEquals(List.of("article", "editorial", "paratext"), response.contentMixLabels());
+    }
+
+    @Test
     @DisplayName("Bai khong co nam xuat ban bi bo qua")
     void workWithoutYearIsIgnored() {
         TrendAggregator aggregator = new TrendAggregator();

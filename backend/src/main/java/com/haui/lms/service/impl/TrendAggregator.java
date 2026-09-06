@@ -58,6 +58,12 @@ class TrendAggregator {
      * bai chi thuoc dung mot loai.
      */
     private final Map<Integer, Map<String, Integer>> contentMixByYear = new HashMap<>();
+
+    /**
+     * Tong so bai theo loai tren toan khoang nam, dung de sap xep contentMixLabels giam dan. Tach rieng voi
+     * contentMixByYear vi label chi can mot thu tu duy nhat cho ca khoang nam, khong phai thu tu rieng tung nam.
+     */
+    private final Map<String, Integer> contentMixTotals = new HashMap<>();
     private final Map<String, EntityStat> countries = new HashMap<>();
     private final Map<String, EntityStat> institutions = new HashMap<>();
     private final Map<String, EntityStat> authors = new HashMap<>();
@@ -109,6 +115,7 @@ class TrendAggregator {
     private void addContentMix(int year, String type) {
         String key = StringUtils.hasText(type) ? type : UNKNOWN_NAME.toLowerCase(Locale.ROOT);
         contentMixByYear.computeIfAbsent(year, unused -> new HashMap<>()).merge(key, 1, Integer::sum);
+        contentMixTotals.merge(key, 1, Integer::sum);
     }
 
     /**
@@ -323,6 +330,9 @@ class TrendAggregator {
                 year -> new JournalTrendResponse.YearContentMix(year, contentMixByYear.getOrDefault(year, Map.of())))
                 .toList();
 
+        List<String> contentMixLabels = contentMixTotals.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer> comparingByValue().reversed()).map(Map.Entry::getKey).toList();
+
         // Tinh moi danh sach chi tiet dung mot lan, roi trich ten ra lam label. Tranh goi topEntries() hai lan cho
         // cung mot map, vua ton cong vua co the ra hai ket qua khac nhau neu co hai muc bang diem (tie-break khong on
         // dinh o HashMap).
@@ -332,7 +342,7 @@ class TrendAggregator {
 
         return new JournalTrendResponse(openAlexId, issn, displayName, fromYear, toYear, inferUnknown, totalWorks,
                 countRealEntities(countries), countRealEntities(institutions), authors.size(), years, worksSeries,
-                contentMixSeries, countryEntries, labelsOf(countryEntries), institutionEntries,
+                contentMixSeries, contentMixLabels, countryEntries, labelsOf(countryEntries), institutionEntries,
                 labelsOf(institutionEntries), topInstitutionsByCountry(), authorEntries, labelsOf(authorEntries),
                 Instant.now());
     }

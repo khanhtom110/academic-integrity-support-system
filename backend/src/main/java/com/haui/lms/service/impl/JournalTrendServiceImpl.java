@@ -358,7 +358,7 @@ public class JournalTrendServiceImpl implements JournalTrendService {
      * tren Redis (TTL 7 ngay) van con nguyen dang cu, deserialize len se thieu truong moi va Jackson tu dien null thay
      * vi bao loi - rat de bi tuong nham la bug logic trong khi thuc chat la du lieu cache qua han cau truc.
      */
-    private static final String RESPONSE_SCHEMA_VERSION = "v2";
+    private static final String RESPONSE_SCHEMA_VERSION = "v3";
 
     /**
      * Cache key co ca co suy luan, vi bat va tat cho ra hai bo so lieu khac han nhau.

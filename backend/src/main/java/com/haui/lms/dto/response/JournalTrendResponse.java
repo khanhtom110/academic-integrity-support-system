@@ -56,6 +56,9 @@ public record JournalTrendResponse(@Schema(description = "Mã OpenAlex của t�
         @Schema(description = "Tỷ lệ loại bài theo năm, ví dụ article/editorial/paratext. Đếm nguyên vẹn theo work.type, "
                 + "không chia nhỏ như quốc gia hay tổ chức, nên tổng của mỗi năm bằng đúng số bài của năm đó") List<YearContentMix> contentMixByYear,
 
+        @Schema(description = "Tên các loại bài xuất hiện trong contentMixByYear, giảm dần theo tổng trên toàn khoảng năm. "
+                + "Tiện cho frontend dựng chú thích/checkbox một lần duy nhất, không phải gộp lại từ dữ liệu theo từng năm") List<String> contentMixLabels,
+
         @Schema(description = "Top quốc gia, fractional counting, giảm dần theo tổng") List<TrendEntry> countries,
 
         @Schema(description = "Chỉ tên các quốc gia trong trường countries, đúng theo thứ tự đó. "
