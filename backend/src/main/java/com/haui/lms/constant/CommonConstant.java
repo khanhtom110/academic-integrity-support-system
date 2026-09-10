@@ -36,6 +36,26 @@ public final class CommonConstant {
         // Prefix key tren Redis
         public static final String CACHE_DETAIL_PREFIX = "JOURNAL_DETAIL:";
         public static final String CACHE_SEARCH_PREFIX = "JOURNAL_SEARCH:";
+        public static final String CACHE_TREND_PREFIX = "JOURNAL_TREND:";
+        public static final String CACHE_TREND_JOB_PREFIX = "JOURNAL_TREND_JOB:";
+
+        // 200 la so ban ghi toi da OpenAlex cho phep lay moi trang
+        public static final int WORKS_PAGE_SIZE = 200;
+
+        // Chi giu top N quoc gia / to chuc / tac gia, neu tra het thi response phinh len hang chuc MB
+        public static final int TOP_ENTITIES = 20;
+
+        // So quoc gia duoc nhom rieng cho dropdown loc to chuc theo quoc gia. Thap hon TOP_ENTITIES vi day la so
+        // NHOM, moi nhom lai co toi da TOP_ENTITIES to chuc ben trong, tra het se rat nang.
+        public static final int TOP_INSTITUTION_COUNTRIES = 10;
+
+        // Tap chi lon co the timeout khi phan trang sau. Gap 504 thi chia doi khoang ngay va thu lai,
+        // toi da 4 lan tuc mot nam bi cat nho nhat con khoang 3 tuan.
+        public static final int MAX_SPLIT_DEPTH = 4;
+
+        // So tac gia tra moi lan khi suy ra quoc gia. Gop nhieu ma vao mot lan goi cho re,
+        // nhung URL dai qua thi OpenAlex tu choi nen giu o muc vua phai.
+        public static final int AUTHOR_LOOKUP_BATCH_SIZE = 50;
     }
 
     public static final class User {

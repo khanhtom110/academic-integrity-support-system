@@ -13,6 +13,13 @@ public record ApiResponse<T>(int statusCode,
         return new ApiResponse<>(201, message, data, Instant.now());
     }
 
+    /**
+     * Dung cho viec da nhan nhung chua lam xong, vi du job phan tich chay nen.
+     */
+    public static <T> ApiResponse<T> accepted(String message, T data) {
+        return new ApiResponse<>(202, message, data, Instant.now());
+    }
+
     public static <T> ApiResponse<T> ok(String message, T data) {
         return new ApiResponse<>(200, message, data, Instant.now());
     }
